@@ -1,52 +1,12 @@
-# ACTA Website — Working Notes
+ACTA Website v2
+================
+Static responsive website prototype built from the ACTA materials and 20 supplied photographs.
 
-## Repo
-- Site: https://actaph.github.io/
-- Source: https://github.com/actaph/actaph.github.io (branch `main`)
-- Static site, no build step: `index.html`, `styles.css`, `script.js`, `assets/`, `activities/` (per-activity detail pages)
-- This session's environment does NOT have push access to this repo (GitHub App not installed / repo not in authorized session sources). Every round of changes is delivered as a zip (`acta-website-updated.zip`) for manual upload via GitHub's "Add file → Upload files" web UI.
-- `/tmp/acta-site` has picked up a stray `.git/` folder (a leftover clone from earlier reference work, ~7.5MB). It is NOT part of the deliverable — always zip with `-x ".git/*" -x ".git"` (or delete the folder) before sending, and check `unzip -l` for a `.git/` entry as a sanity check.
+How to run:
+1. Extract the ZIP.
+2. Open index.html in a browser, or upload the folder to any static web host.
+3. Replace the placeholder contact email and add confirmed organization details before public launch.
 
-## Current site structure (nav order)
-About · Leadership · Programs · Why ACTA · Uniforms · Activities · Gallery · Partnership · Conduct · Members · Contact (button)
+No framework or build step is required.
 
-- **About**: intro copy + Vision & Mission cards (`.vm-grid`), sourced from the official ACTA PowerPoint.
-- **Leadership**: Founding Chapter — Benjamin A. Maceren (Founder/President, Regional Governor CVR11 EY26 / TFOEPE) with photo, and Corporate Adviser PCol. Atty. Antonietto Y. Cañete with photo.
-- **Programs**: unchanged 4-item grid from original site.
-- **Why ACTA Exists** ("FIELD REFERENCE"): real Cebu case studies grouped by `.topic-category` — Crime (2), Traffic Issues (2), Violence (2), Drugs Awareness (1, still only one — a second Cebu-specific drug story was never found). Purpose: reference material for officers/founder to cite during member orientation speeches ("why ACTA exists"), not general news content. The section's subtitle line was removed at the user's request — only the eyebrow + heading remain.
-- **Uniforms** ("GEAR"):
-  - Type A Shirt: a single combined photo (`acta-uniform-typea.jpg`, `.uniform-grid.wide`) — the user explicitly wants this as ONE photo (as originally supplied), not split into Front/Back cards. It was rebuilt from the vendor's ("GAMA Apparel") original combined render using OpenCV inpainting to remove the watermark/logo, plus a safe crop to drop the vendor contact-info block at the bottom.
-  - Vest: main high-vis vest photo (`.uniform-grid.single`) + a `.uniform-grid.triple` row of 3 more field examples: plain back view, "Ondiano PC — DCDO, CV-R7-003", "Arcamo RM — CV-R7-0029".
-  - Type B Shirt: STILL split into Front/Back cards (vendor renders, dark shirt with a fire/explosion print design) — this has NOT been converted to the single-photo treatment. The user was asked whether they want the same single-photo treatment applied as Type A and has not answered yet — don't change this without confirming.
-- **Activities** ("IN THE FIELD"): redesigned from a fixed 3-item mosaic (`.feature-grid`, 1 large + 2 small, hardcoded for exactly 3) to a scalable `.activity-grid` of `.activity-card`s (`repeat(auto-fit,minmax(300px,1fr))`) — this now shows every logged activity, newest first, and new entries can be added indefinitely without breaking the layout. Each card = photo + optional `<em>` date pill + title + short caption. Every card is now also a full clickable link (whole `<figure>` wraps an `<a>`) through to a dedicated detail page — see "Per-activity detail pages" below. First/newest card (Sept 13, 2026): "Joint Orientation & Installation" — new members from Liloan, Compostela and Danao chapters installed, joined by ~50–60 CGBAPI Guardians as police force multipliers, led by Founder Gov. Benjamin Maceren and chapter officers (Kuya Kons Chary Cañete, Cedric Cañete, Migz Gubahac, Boo Oncada). Personal Facebook profile links from the source caption were deliberately excluded from the published copy — names/roles only. Cover photo: `assets/acta-activity-orientation.jpg`. Older 3 cards (Community presence / Coordination & meetings / Community events) kept as-is, same photos/captions, just restyled into the new card format.
-- **Per-activity detail pages** (`activities/*.html`, new): each activity card links to its own standalone page — `activities/joint-orientation-2026-09-13.html`, `activities/community-presence.html`, `activities/coordination-meetings.html`, `activities/community-events.html`. Each page reuses the same header/nav/footer as `index.html` (with `../` relative paths to `styles.css`, `script.js`, `assets/`), has a "← Back to ACTA in Action" link to `../index.html#activities`, an eyebrow date (if known), an `<h2>` title, an `.activity-lead` paragraph, and an `.activity-photos` responsive grid (`repeat(auto-fit,minmax(280px,1fr))`, images at `aspect-ratio:4/3` via object-fit:cover). The Sept 13 orientation page has the full write-up + **all 16** photos from the batch the user sent (in a narrative order: arrival/group shots → officers watching → founder's address from several angles → the website itself projected on screen → registration table) — the first draft only used 6 of the 16 and the user caught this ("have we added all photos to the said activity?"), so the remaining 10 were added afterward as `acta-29.jpg`–`acta-38.jpg`. Lesson: when a batch of event photos is supplied, default to using all of them on that activity's detail page (a documentation page, not a curated highlight reel) rather than pre-selecting a handful — confirm with the user only if photos are genuinely redundant/low-quality enough to be worth dropping. The 3 legacy pages are intentionally minimal (single existing photo + existing one-line caption) since no additional material exists for those older entries — don't invent detail for them. **Going forward: every new activity added to the homepage grid should get a matching page in `activities/` and the card should link to it, with every supplied photo for that event included** — this is now the established pattern, not a one-off.
-- **Gallery**: flexible thumbnail grid, now `acta-01.jpg`–`acta-38.jpg`. `acta-24`–`acta-38` (15 photos) are all from the Sept 13 orientation event, mirroring everything on that activity's detail page — group shots, the Founder's address from multiple angles, two officers/back-of-ACTA-shirt shots addressing the crowd, the ACTA website itself projected on-screen (both the "Traffic Issues" and "Violence" pages — a nice full-circle moment, the site being used as actual training material), and the registration-table candid.
-- **Members Portal** ("GET INVOLVED"): public "how to join" info section — 4-step process (inquire → orientation → screening → sworn in) + a card CTA linking to Contact. NOT a real login/member-gated area — this is a static GitHub Pages site with no backend. If the user ever wants an actual member login area (IDs, private announcements, resources), that requires real backend infrastructure (e.g. Firebase/Supabase + auth) — a separate, bigger project. Noted this explicitly in the section copy ("planned for a future update").
-- **Values** (MAKA): corrected wording per official deck — Maka-Diyos / Maka-Tao / Maka-Bayan / Maka-Kalikasan.
-- **Conduct**: Code of Conduct with two groups (Honesty/Integrity, Insubordination) and penalty badges.
-- **Contact**: still shows placeholder email (`ACTA@example.com`) and "Details to be confirmed" — real contact info has never been provided by the user.
-
-## Content sourced from "ACTA PRESENTATION [Autosaved].pptx" (uploaded early in the project; file no longer in the working directory)
-- Vision & Mission statements
-- Official MAKA values wording
-- Founding leadership details (from an ID card image in the deck): Benjamin A. Maceren — Founder/President, Chapter: Lapu-Lapu City, Region: Central Visayas — Region VII, Corporate Adviser: PCol. Atty. Antonietto Y. Cañete, City Director of Lapu-Lapu City Police Office. ID expiry noted (2028-01) was NOT published.
-- Org founding year: 2025
-
-## Still outstanding / unresolved
-- Real contact email/phone for the Contact section (placeholder still live).
-- Second Drugs Awareness case study (only one found so far).
-- Any additional ACTA chapters beyond Lapu-Lapu City.
-- Whether to eventually build a real (backend-based) Members login area, vs. keeping the current public info page.
-- Whether to convert Type B Shirt to the single-photo treatment (matching Type A) — asked, no answer yet.
-
-## Workflow reminders for future sessions
-- Nav is at 11 items and fits on one line at 1280px with some margin left — a 12th item may require shrinking `.nav nav{gap}` / `.nav nav a{font-size}` further, or consolidating.
-- When adding member/vest photos with visible personal name-and-ID patches, this has been treated as acceptable (analogous to a uniform name tag), unlike signatures or full ID cards which are never published.
-- Personal social-media profile links (e.g. Facebook URLs) supplied in a caption/description are never published — only names/roles are kept.
-- Vendor/supplier renders (shirt mockups) have watermarks and contact info baked in — always crop or inpaint those out before publishing. OpenCV `cv2.inpaint` (color-thresholded + dilated mask, then a Gaussian-feathered blend back into the original) is the established technique for clean watermark removal — flat fills or self-blur leave visible artifacts.
-- When a source photo is a single image that happens to show both front and back (or multiple angles) in one frame, don't assume it should be split into separate cards — ask, or default to preserving the original single-image framing, unless a true separate front/back pair was supplied.
-- When a user sends a batch of event photos for a new activity, use ALL of them on that activity's detail page by default (see "Per-activity detail pages" above) rather than pre-selecting a "best of" handful — the user asked for this explicitly after a first pass only used 6 of 16. Only drop a photo if it's an exact duplicate (check via hash) or genuinely unusable (severely blurred, unrelated).
-- Standard image processing: resize to max-width 1100px, JPEG quality ~85–88, `ImageOps.exif_transpose` for camera-rotated photos.
-- New activities go in the Activities section (`.activity-grid` / `.activity-card`, newest first), get their own page in `activities/` with every supplied photo (see "Per-activity detail pages" above — reuse the header/footer template, just swap in the new content/photos), and the same photos also get added to the sitewide Gallery. Activities is no longer capped at 3 items, so don't hesitate to add more there directly.
-- Delivery workflow: build in `/tmp/acta-site`, zip the whole folder (`index.html styles.css script.js assets/ activities/ README.txt`) into `/mnt/user-data/outputs/acta-website-updated.zip` (excluding the stray `.git/` folder — see top note), then SendUserFile. No git push access — always manual upload by the user.
-- Zip-build gotcha: killing a background `python3 -m http.server` (used for local QA) in the same bash command as the `rm + zip` rebuild can time out and silently leave a stale zip. Kill it via its stored PID file in a separate prior command, then run `rm -f ... && zip -r -q ...` as its own clean subsequent call. Always sanity-check `unzip -l` afterward for the expected new filenames.
+Branding update: the official ACTA logo supplied with the project is used in the header, hero section, footer, and browser favicon.
