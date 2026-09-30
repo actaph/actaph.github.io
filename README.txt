@@ -1,3 +1,4 @@
+Updated October 2026
 ACTA Website v2
 ================
 Static responsive website prototype built from the ACTA materials and 20 supplied photographs.
