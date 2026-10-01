@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Admin | ACTA Members Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="../assets/acta-logo.png">
+<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="portal.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="container nav">
+    <a class="brand" href="../index.html"><img class="brand-logo" src="../assets/acta-logo.png" alt="ACTA logo"><span>Anti-Crime &amp;<br>Traffic Assistance</span></a>
+    <button class="menu" aria-label="Open menu">☰</button>
+    <nav id="navlinks">
+      <a href="./">Members Portal</a>
+      <a href="dashboard.html">My Account</a>
+      <a class="nav-cta" href="#" id="logout">Sign out</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page-top">
+  <div class="container">
+    <div id="setup"></div>
+    <p class="eyebrow blue">ADMIN</p>
+    <h2 style="font-size:48px;color:#0b1d3a;margin:0 0 24px">Portal administration</h2>
+    <div id="gate" class="empty">Checking admin access…</div>
+
+    <div id="app" class="hidden">
+      <div class="tabs" role="tablist">
+        <button class="on" data-tab="requests">Account requests <span class="badge" id="n-requests">0</span></button>
+        <button data-tab="members">Member registry <span class="badge" id="n-members">0</span></button>
+        <button data-tab="applications">Applications <span class="badge" id="n-applications">0</span></button>
+        <button data-tab="announcements">Announcements</button>
+        <button data-tab="resources">Resources</button>
+      </div>
+
+      <section class="tabpane on" id="requests">
+        <p class="lead" style="color:#4e5d73">Existing members who created a portal account. Check the details against your records, then approve to give them member access and a digital ID.</p>
+        <div id="requests-list"></div>
+      </section>
+
+      <section class="tabpane" id="members">
+        <div class="row" style="justify-content:space-between;margin-bottom:16px">
+          <p style="margin:0;color:#4e5d73;max-width:620px">Every ID listed here can be checked on the public <a href="./#verify">Verify ID</a> page. Members don't need a portal account to be listed.</p>
+          <button class="btn primary small" id="add-member">+ Add member</button>
+        </div>
+        <input id="member-search" placeholder="Search by name, ID or chapter…" style="margin-bottom:14px;max-width:420px">
+        <div class="tbl-wrap"><table class="tbl"><thead><tr><th>ID No.</th><th>Name</th><th>Chapter</th><th>Position</th><th>Status</th><th>Valid until</th><th>Portal</th><th></th></tr></thead><tbody id="members-body"></tbody></table></div>
+      </section>
+
+      <section class="tabpane" id="applications">
+        <p style="color:#4e5d73">New applicants from the public application form. Contact them about orientation, then update the status.</p>
+        <div id="applications-list"></div>
+      </section>
+
+      <section class="tabpane" id="announcements">
+        <div class="grid-2" style="align-items:start;gap:30px">
+          <form class="card" id="ann-form">
+            <h3>New announcement</h3>
+            <div class="field"><label for="an-title">Title</label><input id="an-title" required maxlength="150"></div>
+            <div class="field"><label for="an-body">Message</label><textarea id="an-body" required maxlength="5000" style="min-height:160px"></textarea></div>
+            <div class="field"><label for="an-aud">Who can see it?</label><select id="an-aud"><option value="public">Everyone (public)</option><option value="members">Members only</option></select></div>
+            <button class="btn primary" type="submit">Post announcement</button>
+          </form>
+          <div id="ann-list"></div>
+        </div>
+      </section>
+
+      <section class="tabpane" id="resources">
+        <div class="grid-2" style="align-items:start;gap:30px">
+          <form class="card" id="res-form">
+            <h3>Add a resource</h3>
+            <p class="muted" style="margin:0 0 14px">Link to a file (e.g. a Google Drive PDF shared as "Anyone with the link") or a page.</p>
+            <div class="field"><label for="rs-title">Title</label><input id="rs-title" required maxlength="150"></div>
+            <div class="field"><label for="rs-url">Link (URL)</label><input id="rs-url" required maxlength="500" placeholder="https://…"></div>
+            <div class="field"><label for="rs-desc">Short description</label><input id="rs-desc" maxlength="300"></div>
+            <div class="field"><label for="rs-aud">Who can see it?</label><select id="rs-aud"><option value="members">Members only</option><option value="public">Everyone (public)</option></select></div>
+            <button class="btn primary" type="submit">Add resource</button>
+          </form>
+          <div id="res-list"></div>
+        </div>
+      </section>
+    </div>
+  </div>
+</main>
+
+<dialog id="member-dialog">
+  <form method="dialog" id="member-form">
+    <h3 id="md-title">Member</h3>
+    <div id="md-note"></div>
+    <div class="grid-2" style="gap:14px">
+      <div class="field"><label for="m-id">ID number *</label><input id="m-id" required maxlength="30" style="text-transform:uppercase"></div>
+      <div class="field"><label for="m-status">Status</label><select id="m-status"><option>Active</option><option>Inactive</option><option>Suspended</option><option>Expelled</option></select></div>
+    </div>
+    <div class="field"><label for="m-name">Full name *</label><input id="m-name" required maxlength="120"></div>
+    <div class="grid-2" style="gap:14px">
+      <div class="field"><label for="m-chapter">Chapter</label><select id="m-chapter"></select></div>
+      <div class="field"><label for="m-position">Position</label><input id="m-position" maxlength="80" placeholder="Member"></div>
+    </div>
+    <div class="grid-2" style="gap:14px">
+      <div class="field"><label for="m-since">Member since</label><input id="m-since" type="date"></div>
+      <div class="field"><label for="m-valid">ID valid until</label><input id="m-valid" type="date"></div>
+    </div>
+    <div class="field"><label for="m-photo">Photo link</label><input id="m-photo" maxlength="500" placeholder="../assets/members/CV-R7-0029.jpg"><small>Optional. A photo saved in the website's assets/members folder, or an image link.</small></div>
+    <div class="row" style="justify-content:flex-end;margin-top:8px">
+      <button class="btn line" value="cancel" formnovalidate>Cancel</button>
+      <button class="btn primary" id="md-save" value="save">Save</button>
+    </div>
+  </form>
+</dialog>
+
+<footer style="margin-top:80px"><div class="container footer"><div class="brand"><img class="brand-logo footer-logo" src="../assets/acta-logo.png" alt="ACTA logo"><span>Anti-Crime &amp; Traffic Assistance</span></div><span>© <span id="year"></span> ACTA. All rights reserved.</span></div></footer>
+
+<script type="module">
+import { configured, auth, db, fb, $, $$, esc, fmtDate, normId, safeUrl, setupBanner, initHeader, getRole, signOut, toast, friendlyError, STATUS_CLASS } from "./portal.js";
+import { chapters } from "./data.js";
+
+initHeader();
+setupBanner($("#setup"));
+$("#logout").addEventListener("click", e => { e.preventDefault(); signOut(); });
+$$(".tabs button").forEach(b => b.addEventListener("click", () => {
+  $$(".tabs button").forEach(x => x.classList.toggle("on", x === b));
+  $$(".tabpane").forEach(p => p.classList.toggle("on", p.id === b.dataset.tab));
+}));
+$("#m-chapter").innerHTML = chapters.map(c => `<option>${esc(c.name)}</option>`).join("");
+
+const C = n => fb.collection(db, n), D = (n, id) => fb.doc(db, n, id);
+let me = null, registry = [], profiles = [];
+const REG_FIELDS = ["name", "chapter", "position", "status", "photoUrl", "memberSince", "validUntil"];
+
+if (!configured) $("#gate").textContent = "The portal isn't connected yet.";
+else fb.onAuthStateChanged(auth, async user => {
+  if (!user) return location.replace("login.html");
+  const r = await getRole(user);
+  if (!r.admin) { $("#gate").className = "notice bad"; $("#gate").innerHTML = "This page is for ACTA portal admins only. <a href='dashboard.html'>Go to my account</a>"; return; }
+  me = user; $("#gate").classList.add("hidden"); $("#app").classList.remove("hidden");
+  refreshAll();
+});
+
+async function refreshAll() {
+  try { await loadMembers(); await Promise.all([loadRequests(), loadApplications(), loadAnnouncements(), loadResources()]); }
+  catch (e) { toast(friendlyError(e), "bad"); console.error(e); }
+}
+async function act(fn, okMsg) { try { await fn(); if (okMsg) toast(okMsg); } catch (e) { toast(friendlyError(e), "bad"); console.error(e); } }
+
+/* ---------- Member registry ---------- */
+async function loadMembers() {
+  const [r, p] = await Promise.all([fb.getDocs(C("registry")), fb.getDocs(C("profiles"))]);
+  registry = r.docs.map(d => ({ idNo: d.id, ...d.data() })).sort((a, b) => a.idNo.localeCompare(b.idNo, undefined, { numeric: true }));
+  profiles = p.docs.map(d => ({ uid: d.id, ...d.data() }));
+  $("#n-members").textContent = registry.length;
+  renderMembers();
+}
+function renderMembers() {
+  const q = $("#member-search").value.trim().toLowerCase();
+  const rows = registry.filter(m => !q || [m.idNo, m.name, m.chapter, m.position].join(" ").toLowerCase().includes(q));
+  $("#members-body").innerHTML = rows.length ? rows.map(m => {
+    const acct = profiles.find(p => p.idNo === m.idNo);
+    return `<tr><td><b>${esc(m.idNo)}</b></td><td>${esc(m.name)}</td><td>${esc(m.chapter)}</td><td>${esc(m.position || "Member")}</td>
+      <td><span class="badge ${STATUS_CLASS[m.status] || ""}">${esc(m.status || "Active")}</span></td><td>${m.validUntil ? fmtDate(m.validUntil) : "—"}</td>
+      <td>${acct ? `<span class="badge ok" title="${esc(acct.email)}">Linked</span>` : `<span class="muted">—</span>`}</td>
+      <td class="row" style="flex-wrap:nowrap"><button class="btn line small" data-edit="${esc(m.idNo)}">Edit</button><button class="btn danger small" data-del="${esc(m.idNo)}">Remove</button></td></tr>`;
+  }).join("") : `<tr><td colspan="8"><div class="empty">${registry.length ? "No matches." : "No members yet. Click “+ Add member”."}</div></td></tr>`;
+}
+$("#member-search").addEventListener("input", renderMembers);
+$("#members-body").addEventListener("click", e => {
+  const ed = e.target.closest("[data-edit]"), dl = e.target.closest("[data-del]");
+  if (ed) openMember({ ...registry.find(m => m.idNo === ed.dataset.edit) }, { editing: true });
+  if (dl) {
+    const id = dl.dataset.del, acct = profiles.filter(p => p.idNo === id);
+    if (!confirm(`Remove ${id} from the registry?${acct.length ? " Their portal access will also be removed." : ""} Tip: to keep a record, set Status to Inactive or Expelled instead.`)) return;
+    act(async () => {
+      const b = fb.writeBatch(db); b.delete(D("registry", id)); acct.forEach(p => b.delete(D("profiles", p.uid))); await b.commit(); await loadMembers();
+    }, `${id} removed.`);
+  }
+});
+$("#add-member").addEventListener("click", () => openMember({ status: "Active" }, {}));
+
+// Shared add/edit/approve dialog
+let dialogCtx = null;
+function openMember(m, ctx) {
+  dialogCtx = ctx;
+  $("#md-title").textContent = ctx.signup ? "Approve member access" : ctx.editing ? `Edit ${m.idNo}` : "Add member";
+  $("#md-note").innerHTML = ctx.signup ? `<div class="notice">Approving <b>${esc(ctx.signup.email)}</b>. ${ctx.existing ? "This ID is already in the registry — its record is shown below." : "This ID is not in the registry yet — it will be added."} Check the details, then save.</div>` : "";
+  $("#m-id").value = m.idNo || ""; $("#m-id").readOnly = !!ctx.editing || !!ctx.signup;
+  $("#m-name").value = m.name || ""; $("#m-chapter").value = m.chapter || chapters[0].name; $("#m-position").value = m.position || "";
+  $("#m-status").value = m.status || "Active"; $("#m-since").value = m.memberSince || ""; $("#m-valid").value = m.validUntil || ""; $("#m-photo").value = m.photoUrl || "";
+  $("#md-save").textContent = ctx.signup ? "Approve" : "Save";
+  $("#member-dialog").showModal();
+}
+$("#member-form").addEventListener("submit", e => {
+  if (e.submitter?.value !== "save") return;
+  e.preventDefault();
+  const idNo = normId($("#m-id").value), name = $("#m-name").value.trim();
+  if (!/^[A-Z0-9\-]{3,30}$/.test(idNo) || !name) return toast("Enter a valid ID number (letters, numbers, dashes) and a name.", "bad");
+  const rec = { name, chapter: $("#m-chapter").value, position: $("#m-position").value.trim(), status: $("#m-status").value,
+    memberSince: $("#m-since").value, validUntil: $("#m-valid").value, photoUrl: $("#m-photo").value.trim() };
+  const ctx = dialogCtx;
+  if (!ctx.editing && !ctx.signup && registry.some(m => m.idNo === idNo)) return toast(`${idNo} is already in the registry — use Edit instead.`, "bad");
+  act(async () => {
+    const b = fb.writeBatch(db);
+    b.set(D("registry", idNo), { ...rec, updatedAt: fb.serverTimestamp() });
+    profiles.filter(p => p.idNo === idNo).forEach(p => b.update(D("profiles", p.uid), rec));
+    if (ctx.signup) {
+      b.set(D("profiles", ctx.uid), { ...rec, idNo, email: ctx.signup.email, phone: "", address: "", emergencyContact: "", approvedBy: me.email, approvedAt: fb.serverTimestamp() });
+      b.delete(D("signups", ctx.uid));
+    }
+    await b.commit();
+    $("#member-dialog").close();
+    await Promise.all([loadMembers(), ctx.signup ? loadRequests() : null]);
+  }, ctx.signup ? `${name} approved.` : `${idNo} saved.`);
+});
+
+/* ---------- Account requests ---------- */
+let signups = [];
+async function loadRequests() {
+  signups = (await fb.getDocs(C("signups"))).docs.map(d => ({ uid: d.id, ...d.data() }));
+  $("#n-requests").textContent = signups.length;
+  $("#requests-list").innerHTML = signups.length ? `<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Name</th><th>ID claimed</th><th>Chapter</th><th>Email</th><th>Requested</th><th>Registry check</th><th></th></tr></thead><tbody>${
+    signups.map(s => { const reg = registry.find(m => m.idNo === s.idNo);
+      const check = !reg ? `<span class="badge warn">ID not in registry</span>` : reg.name.trim().toLowerCase() === (s.name || "").trim().toLowerCase() ? `<span class="badge ok">Name matches</span>` : `<span class="badge warn">Registry name: ${esc(reg.name)}</span>`;
+      return `<tr><td><b>${esc(s.name)}</b></td><td>${esc(s.idNo)}</td><td>${esc(s.chapter)}</td><td>${esc(s.email)}</td><td>${fmtDate(s.createdAt)}</td><td>${check}</td>
+      <td class="row" style="flex-wrap:nowrap"><button class="btn primary small" data-approve="${esc(s.uid)}">Review &amp; approve</button><button class="btn danger small" data-reject="${esc(s.uid)}">Reject</button></td></tr>`; }).join("")
+  }</tbody></table></div>` : `<div class="empty">No pending account requests.</div>`;
+}
+$("#requests-list").addEventListener("click", e => {
+  const ap = e.target.closest("[data-approve]"), rj = e.target.closest("[data-reject]");
+  if (ap) { const s = signups.find(x => x.uid === ap.dataset.approve), reg = registry.find(m => m.idNo === s.idNo);
+    openMember(reg ? { ...reg } : { idNo: s.idNo, name: s.name, chapter: s.chapter, status: "Active" }, { signup: s, uid: s.uid, existing: !!reg }); }
+  if (rj) { const s = signups.find(x => x.uid === rj.dataset.reject);
+    if (confirm(`Reject the account request from ${s.name} (${s.email})? They will stay signed up but without member access.`))
+      act(async () => { await fb.deleteDoc(D("signups", s.uid)); await loadRequests(); }, "Request rejected."); }
+});
+
+/* ---------- Applications ---------- */
+let apps = [];
+const APP_STATUS = ["new", "contacted", "accepted", "declined"];
+async function loadApplications() {
+  apps = (await fb.getDocs(C("applications"))).docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+  $("#n-applications").textContent = apps.filter(a => a.status === "new").length;
+  $("#applications-list").innerHTML = apps.length ? apps.map(a => `<div class="card" style="margin-bottom:14px">
+    <div class="row" style="justify-content:space-between"><h3 style="margin:0">${esc(a.fullName)}</h3><small class="muted">${fmtDate(a.createdAt)}</small></div>
+    <div class="kv" style="margin:10px 0 14px"><b>Mobile:</b> ${esc(a.phone)}${a.email ? ` · <b>Email:</b> ${esc(a.email)}` : ""}<br><b>Chapter:</b> ${esc(a.chapter)} · <b>Born:</b> ${esc(a.birthdate)}${a.occupation ? ` · <b>Occupation:</b> ${esc(a.occupation)}` : ""}<br><b>Address:</b> ${esc(a.address)}${a.reason ? `<br><b>Reason:</b> ${esc(a.reason)}` : ""}</div>
+    <div class="row"><label style="margin:0">Status</label><select data-app="${esc(a.id)}" style="width:auto">${APP_STATUS.map(s => `<option ${s === a.status ? "selected" : ""}>${s}</option>`).join("")}</select>
+    <button class="btn danger small" data-appdel="${esc(a.id)}">Delete</button></div></div>`).join("") : `<div class="empty">No applications yet.</div>`;
+}
+$("#applications-list").addEventListener("change", e => { const s = e.target.closest("[data-app]"); if (s) act(async () => { await fb.updateDoc(D("applications", s.dataset.app), { status: s.value }); await loadApplications(); }, "Status updated."); });
+$("#applications-list").addEventListener("click", e => { const d = e.target.closest("[data-appdel]"); if (d && confirm("Delete this application permanently?")) act(async () => { await fb.deleteDoc(D("applications", d.dataset.appdel)); await loadApplications(); }, "Application deleted."); });
+
+/* ---------- Announcements & resources ---------- */
+async function loadAnnouncements() {
+  const list = (await fb.getDocs(C("announcements"))).docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => (b.date?.seconds || 0) - (a.date?.seconds || 0));
+  $("#ann-list").innerHTML = list.length ? list.map(a => `<article class="post"><div class="row" style="justify-content:space-between"><small>${fmtDate(a.date)} · ${a.audience === "members" ? "Members only" : "Public"}</small><button class="btn danger small" data-anndel="${esc(a.id)}">Delete</button></div><h3>${esc(a.title)}</h3><p>${esc(a.body)}</p></article>`).join("") : `<div class="empty">No announcements yet.</div>`;
+}
+$("#ann-form").addEventListener("submit", e => { e.preventDefault(); act(async () => {
+  await fb.addDoc(C("announcements"), { title: $("#an-title").value.trim(), body: $("#an-body").value.trim(), audience: $("#an-aud").value, author: me.email, date: fb.serverTimestamp() });
+  e.target.reset(); await loadAnnouncements();
+}, "Announcement posted."); });
+$("#ann-list").addEventListener("click", e => { const d = e.target.closest("[data-anndel]"); if (d && confirm("Delete this announcement?")) act(async () => { await fb.deleteDoc(D("announcements", d.dataset.anndel)); await loadAnnouncements(); }, "Deleted."); });
+
+async function loadResources() {
+  const list = (await fb.getDocs(C("resources"))).docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => (a.title || "").localeCompare(b.title || ""));
+  $("#res-list").innerHTML = list.length ? list.map(r => `<div class="card" style="margin-bottom:12px"><div class="row" style="justify-content:space-between"><b style="font-family:'Barlow Condensed';font-size:22px">${esc(r.title)}</b><span class="badge">${r.audience === "public" ? "Public" : "Members"}</span></div><p style="margin:6px 0;font-size:14px">${esc(r.description)}</p><div class="row"><a href="${esc(safeUrl(r.url))}" target="_blank" rel="noopener" style="font-size:13px;word-break:break-all">${esc(r.url)}</a><button class="btn danger small" data-resdel="${esc(r.id)}">Delete</button></div></div>`).join("") : `<div class="empty">No member resources yet.</div>`;
+}
+$("#res-form").addEventListener("submit", e => { e.preventDefault();
+  const url = $("#rs-url").value.trim(); if (safeUrl(url) === "#") return toast("Use a link that starts with https://", "bad");
+  act(async () => { await fb.addDoc(C("resources"), { title: $("#rs-title").value.trim(), url, description: $("#rs-desc").value.trim(), audience: $("#rs-aud").value, createdAt: fb.serverTimestamp() }); e.target.reset(); await loadResources(); }, "Resource added."); });
+$("#res-list").addEventListener("click", e => { const d = e.target.closest("[data-resdel]"); if (d && confirm("Delete this resource?")) act(async () => { await fb.deleteDoc(D("resources", d.dataset.resdel)); await loadResources(); }, "Deleted."); });
+</script>
+</body>
+</html>

@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Member Login | ACTA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="../assets/acta-logo.png">
+<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="portal.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="container nav">
+    <a class="brand" href="../index.html"><img class="brand-logo" src="../assets/acta-logo.png" alt="ACTA logo"><span>Anti-Crime &amp;<br>Traffic Assistance</span></a>
+    <button class="menu" aria-label="Open menu">☰</button>
+    <nav id="navlinks">
+      <a href="../index.html">Main Site</a>
+      <a href="./">Members Portal</a>
+    </nav>
+  </div>
+</header>
+
+<main class="auth-wrap">
+  <div class="auth-card">
+    <div class="logo"><img src="../assets/acta-logo.png" alt=""><div><p class="eyebrow blue" style="margin:0 0 2px">MEMBERS PORTAL</p><h1 id="title">Sign in</h1></div></div>
+    <div id="setup"></div>
+    <div class="tabs" role="tablist">
+      <button class="on" data-tab="signin" role="tab">Sign in</button>
+      <button data-tab="signup" role="tab">Create account</button>
+      <button data-tab="reset" role="tab">Forgot password</button>
+    </div>
+    <div id="msg" aria-live="polite"></div>
+
+    <form class="tabpane on" id="signin">
+      <div class="field"><label for="si-email">Email</label><input id="si-email" type="email" required autocomplete="email"></div>
+      <div class="field"><label for="si-pass">Password</label><input id="si-pass" type="password" required autocomplete="current-password"></div>
+      <button class="btn primary" style="width:100%" type="submit">Sign in</button>
+    </form>
+
+    <form class="tabpane" id="signup">
+      <p style="font-size:14px;color:#4e5d73;line-height:1.6;margin:0 0 16px">For existing ACTA members. After you create an account, an ACTA admin will check your details and activate your member access. New applicants should use the <a href="./#apply">membership application</a> instead.</p>
+      <div class="field"><label for="su-name">Full name</label><input id="su-name" required maxlength="120" autocomplete="name"></div>
+      <div class="field"><label for="su-id">ACTA ID number</label><input id="su-id" required maxlength="30" placeholder="CV-R7-0000" style="text-transform:uppercase"><small>As printed on your vest or ID.</small></div>
+      <div class="field"><label for="su-chapter">Chapter</label><select id="su-chapter" required></select></div>
+      <div class="field"><label for="su-email">Email</label><input id="su-email" type="email" required autocomplete="email"></div>
+      <div class="field"><label for="su-pass">Password</label><input id="su-pass" type="password" required minlength="8" autocomplete="new-password"><small>At least 8 characters.</small></div>
+      <button class="btn primary" style="width:100%" type="submit">Create account</button>
+    </form>
+
+    <form class="tabpane" id="reset">
+      <p style="font-size:14px;color:#4e5d73;line-height:1.6;margin:0 0 16px">Enter your account email and we'll send you a link to set a new password.</p>
+      <div class="field"><label for="rs-email">Email</label><input id="rs-email" type="email" required autocomplete="email"></div>
+      <button class="btn primary" style="width:100%" type="submit">Send reset link</button>
+    </form>
+  </div>
+</main>
+
+<script type="module">
+import { configured, auth, db, fb, $, $$, esc, normId, setupBanner, initHeader, friendlyError } from "./portal.js";
+import { chapters } from "./data.js";
+
+initHeader();
+setupBanner($("#setup"));
+$("#su-chapter").innerHTML = `<option value="">Select your chapter</option>` + chapters.map(c => `<option>${esc(c.name)}</option>`).join("");
+
+const titles = { signin: "Sign in", signup: "Create account", reset: "Reset password" };
+function show(tab) {
+  $$(".tabs button").forEach(b => b.classList.toggle("on", b.dataset.tab === tab));
+  $$(".tabpane").forEach(p => p.classList.toggle("on", p.id === tab));
+  $("#title").textContent = titles[tab]; $("#msg").innerHTML = "";
+}
+$$(".tabs button").forEach(b => b.addEventListener("click", () => show(b.dataset.tab)));
+if (location.hash === "#signup") show("signup");
+
+const say = (html, type = "bad") => $("#msg").innerHTML = `<div class="notice ${type}">${html}</div>`;
+async function run(form, fn) {
+  if (!configured) return say("Login isn't available yet — the portal still needs to be connected.", "warn");
+  const btn = form.querySelector("button[type=submit]"), label = btn.textContent;
+  btn.disabled = true; btn.textContent = "Please wait…";
+  try { await fn(); } catch (e) { say(esc(friendlyError(e))); }
+  btn.disabled = false; btn.textContent = label;
+}
+
+if (configured) fb.onAuthStateChanged(auth, u => { if (u && !window._busy) location.replace("dashboard.html"); });
+
+$("#signin").addEventListener("submit", e => { e.preventDefault(); run(e.target, async () => {
+  await fb.signInWithEmailAndPassword(auth, $("#si-email").value.trim(), $("#si-pass").value);
+}); });
+
+$("#signup").addEventListener("submit", e => { e.preventDefault(); run(e.target, async () => {
+  const name = $("#su-name").value.trim(), idNo = normId($("#su-id").value), chapter = $("#su-chapter").value;
+  if (!name || !idNo || !chapter) return say("Please fill in your name, ID number and chapter.");
+  window._busy = true;
+  try {
+    const cred = await fb.createUserWithEmailAndPassword(auth, $("#su-email").value.trim(), $("#su-pass").value);
+    await fb.updateProfile(cred.user, { displayName: name });
+    await fb.setDoc(fb.doc(db, "signups", cred.user.uid), { name, idNo, chapter, email: cred.user.email, createdAt: fb.serverTimestamp() });
+    location.replace("dashboard.html");
+  } finally { window._busy = false; }
+}); });
+
+$("#reset").addEventListener("submit", e => { e.preventDefault(); run(e.target, async () => {
+  await fb.sendPasswordResetEmail(auth, $("#rs-email").value.trim());
+  say("If an account exists for that email, a reset link has been sent. Check your inbox and spam folder.", "ok");
+}); });
+</script>
+</body>
+</html>

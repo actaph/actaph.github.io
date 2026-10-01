@@ -1,0 +1,78 @@
+rules_version = '2';
+// ACTA Members Portal — Firestore security rules.
+// Paste this into Firebase Console → Firestore Database → Rules, then click Publish.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function isAdmin()  { return signedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid)); }
+    function isMember() { return signedIn() && exists(/databases/$(database)/documents/profiles/$(request.auth.uid)); }
+    function str(v, max) { return v is string && v.size() <= max; }
+
+    // Admin list. Add admins by hand in the Firebase Console (document ID = the user's UID).
+    match /admins/{uid} {
+      allow get: if signedIn() && request.auth.uid == uid;
+      allow list, write: if false;
+    }
+
+    // Public member registry used by "Verify ID". Anyone can look up ONE ID; only members/admins can list all.
+    match /registry/{idNo} {
+      allow get: if true;
+      allow list: if isMember() || isAdmin();
+      allow write: if isAdmin();
+    }
+
+    // Private member profiles (contact details). Member sees own; admins see all.
+    match /profiles/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
+      allow create, delete: if isAdmin();
+      allow update: if isAdmin()
+        || (signedIn() && request.auth.uid == uid
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['phone', 'address', 'emergencyContact'])
+            && str(request.resource.data.phone, 30)
+            && str(request.resource.data.address, 200)
+            && str(request.resource.data.emergencyContact, 200));
+    }
+
+    // Account requests from existing members waiting for admin approval.
+    match /signups/{uid} {
+      allow create: if signedIn() && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['name', 'idNo', 'chapter', 'email', 'createdAt'])
+        && str(request.resource.data.name, 120)
+        && str(request.resource.data.idNo, 30)
+        && str(request.resource.data.chapter, 80)
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.createdAt == request.time;
+      allow get: if signedIn() && (request.auth.uid == uid || isAdmin());
+      allow list, delete: if isAdmin();
+      allow update: if false;
+    }
+
+    // Announcements and resources: "public" ones for everyone, "members" ones after login.
+    match /announcements/{id} {
+      allow read: if resource.data.audience == 'public' || isMember() || isAdmin();
+      allow write: if isAdmin();
+    }
+    match /resources/{id} {
+      allow read: if resource.data.audience == 'public' || isMember() || isAdmin();
+      allow write: if isAdmin();
+    }
+
+    // Membership applications from the public form. Anyone can submit; only admins can read.
+    match /applications/{id} {
+      allow create: if request.resource.data.keys().hasOnly(['fullName', 'phone', 'email', 'birthdate', 'chapter', 'address', 'occupation', 'reason', 'status', 'consent', 'createdAt'])
+        && str(request.resource.data.fullName, 120) && request.resource.data.fullName.size() > 1
+        && str(request.resource.data.phone, 30) && request.resource.data.phone.size() >= 7
+        && str(request.resource.data.email, 120)
+        && str(request.resource.data.birthdate, 10)
+        && str(request.resource.data.chapter, 80)
+        && str(request.resource.data.address, 200)
+        && str(request.resource.data.occupation, 120)
+        && str(request.resource.data.reason, 1500)
+        && request.resource.data.status == 'new'
+        && request.resource.data.consent == true
+        && request.resource.data.createdAt == request.time;
+      allow read, update, delete: if isAdmin();
+    }
+  }
+}

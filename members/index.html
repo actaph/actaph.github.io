@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="ACTA Members Portal — verify a member ID, read announcements, find a chapter and apply for membership.">
+<title>Members Portal | ACTA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="../assets/acta-logo.png">
+<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="portal.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="container nav">
+    <a class="brand" href="../index.html"><img class="brand-logo" src="../assets/acta-logo.png" alt="ACTA logo"><span>Anti-Crime &amp;<br>Traffic Assistance</span></a>
+    <button class="menu" aria-label="Open menu">☰</button>
+    <nav id="navlinks">
+      <a href="../index.html">Main Site</a>
+      <a href="#verify">Verify ID</a>
+      <a href="#announcements">Announcements</a>
+      <a href="#chapters">Chapters</a>
+      <a href="#apply">Apply</a>
+      <a class="nav-cta" id="nav-account" href="login.html">Member Login</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+<section class="portal-hero">
+  <div class="container">
+    <p class="eyebrow">ACTA • FORCE MULTIPLIER</p>
+    <h1>MEMBERS<br><span>PORTAL</span></h1>
+    <p>Verify an ACTA member's ID, read the latest announcements, find your chapter and apply to join. Registered members can sign in to see their digital ID and members-only updates.</p>
+    <div class="hero-actions">
+      <a class="btn primary" href="login.html" id="hero-login">Member Login</a>
+      <a class="btn ghost" href="#apply">Apply for Membership</a>
+    </div>
+  </div>
+</section>
+
+<nav class="subnav" aria-label="Portal sections"><div class="container">
+  <a href="#verify">Verify ID</a><a href="#announcements">Announcements</a><a href="#chapters">Chapters</a><a href="#resources">Resources</a><a href="#apply">Apply</a>
+</div></nav>
+
+<div class="container" id="setup" style="margin-top:24px"></div>
+
+<section class="p-section" id="verify">
+  <div class="container">
+    <p class="eyebrow blue">MEMBER VERIFICATION</p>
+    <h2>Verify an ACTA ID</h2>
+    <p class="lead">Enter the ID number printed on a member's vest or ID card (for example <b>CV-R7-0029</b>) to check that they are a registered ACTA member and their current status.</p>
+    <form class="verify-box" id="verify-form">
+      <input id="verify-id" name="id" placeholder="CV-R7-0000" aria-label="Member ID number" autocomplete="off" required maxlength="30">
+      <button class="btn dark" type="submit">Verify</button>
+    </form>
+    <div class="verify-result" id="verify-result" aria-live="polite"></div>
+  </div>
+</section>
+
+<section class="p-section" id="announcements">
+  <div class="container">
+    <p class="eyebrow blue">UPDATES</p>
+    <h2>Announcements</h2>
+    <p class="lead">Orientation schedules, duty calls and chapter news. Members see additional updates after signing in.</p>
+    <div id="ann-list"><div class="empty">Loading announcements…</div></div>
+  </div>
+</section>
+
+<section class="p-section" id="chapters">
+  <div class="container">
+    <p class="eyebrow blue">DIRECTORY</p>
+    <h2>Chapters</h2>
+    <p class="lead">ACTA chapters across Cebu. Contact a chapter officer to ask about joining or upcoming activities.</p>
+    <div class="grid-4" id="chapter-list"></div>
+  </div>
+</section>
+
+<section class="p-section" id="resources">
+  <div class="container">
+    <p class="eyebrow blue">REFERENCE</p>
+    <h2>Resources</h2>
+    <p class="lead">Guides and documents for members and applicants. Forms and files for members only are inside the member dashboard.</p>
+    <div class="grid-3" id="resource-list"></div>
+  </div>
+</section>
+
+<section class="p-section" id="apply">
+  <div class="container grid-2" style="align-items:start">
+    <div>
+      <p class="eyebrow blue">JOIN ACTA</p>
+      <h2>Membership Application</h2>
+      <p class="lead">ACTA is a volunteer, community-based force multiplier. Fill in this form and a chapter officer will contact you about orientation, screening and documentation.</p>
+      <div class="mini-grid" style="margin-top:10px">
+        <div><b>01</b><span>Submit this application</span></div>
+        <div><b>02</b><span>Attend member orientation</span></div>
+        <div><b>03</b><span>Screening &amp; documentation</span></div>
+        <div><b>04</b><span>Sworn in as an ACTA member</span></div>
+      </div>
+    </div>
+    <form class="card" id="apply-form" novalidate>
+      <div class="field"><label for="a-name">Full name *</label><input id="a-name" name="fullName" required maxlength="120" autocomplete="name"></div>
+      <div class="grid-2" style="gap:14px">
+        <div class="field"><label for="a-phone">Mobile number *</label><input id="a-phone" name="phone" required maxlength="30" inputmode="tel" autocomplete="tel" placeholder="09XX XXX XXXX"></div>
+        <div class="field"><label for="a-email">Email</label><input id="a-email" name="email" type="email" maxlength="120" autocomplete="email"></div>
+      </div>
+      <div class="grid-2" style="gap:14px">
+        <div class="field"><label for="a-birth">Date of birth *</label><input id="a-birth" name="birthdate" type="date" required></div>
+        <div class="field"><label for="a-chapter">Preferred chapter *</label><select id="a-chapter" name="chapter" required></select></div>
+      </div>
+      <div class="field"><label for="a-address">Home address (barangay, city) *</label><input id="a-address" name="address" required maxlength="200" autocomplete="street-address"></div>
+      <div class="field"><label for="a-occ">Occupation</label><input id="a-occ" name="occupation" maxlength="120"></div>
+      <div class="field"><label for="a-why">Why do you want to join ACTA?</label><textarea id="a-why" name="reason" maxlength="1500"></textarea></div>
+      <div class="field"><label class="check"><input type="checkbox" id="a-consent" required> I agree that ACTA may collect and use the information above to process my membership application, in line with the Data Privacy Act of 2012 (RA 10173).</label></div>
+      <button class="btn primary" type="submit" id="apply-btn">Submit Application</button>
+      <div id="apply-msg" style="margin-top:16px" aria-live="polite"></div>
+    </form>
+  </div>
+</section>
+</main>
+
+<footer><div class="container footer"><div class="brand"><img class="brand-logo footer-logo" src="../assets/acta-logo.png" alt="ACTA logo"><span>Anti-Crime &amp; Traffic Assistance</span></div><span>© <span id="year"></span> ACTA. All rights reserved.</span></div></footer>
+
+<script type="module">
+import { configured, db, fb, $, esc, fmtDate, normId, safeUrl, setupBanner, initHeader, STATUS_CLASS, toast, friendlyError } from "./portal.js";
+import { chapters, publicResources } from "./data.js";
+
+initHeader();
+setupBanner($("#setup"));
+
+// Chapters
+$("#chapter-list").innerHTML = chapters.map(c => `
+  <div class="card chapter">
+    <span class="badge ${c.tag === "Founding Chapter" ? "gold" : ""}">${esc(c.tag)}</span>
+    <h3 style="margin-top:12px">${esc(c.name)}</h3>
+    <p class="area">${esc(c.area)}</p>
+    ${c.officers.length ? `<ul>${c.officers.map(o => `<li><small>${esc(o.role)}</small>${esc(o.name)}</li>`).join("")}</ul>` : `<p class="tbc">Chapter officers to be confirmed</p>`}
+    ${c.contact ? `<p style="margin:14px 0 0;font-size:14px"><b>Contact:</b> ${esc(c.contact)}</p>` : ""}
+  </div>`).join("");
+$("#a-chapter").innerHTML = `<option value="">Select a chapter</option>` + chapters.map(c => `<option>${esc(c.name)}</option>`).join("") + `<option>Not sure yet</option>`;
+
+// Resources
+$("#resource-list").innerHTML = publicResources.map(r => `
+  <a class="card res" href="${esc(safeUrl(r.url))}"><b>${esc(r.title)}</b><span>${esc(r.description)}</span><em>Open →</em></a>`).join("");
+
+// Verify
+function memberCard(m, id) {
+  const initials = esc((m.name || "?").split(/\s+/).map(w => w[0]).slice(0, 2).join(""));
+  const expired = m.validUntil && new Date(m.validUntil) < new Date();
+  const st = m.status || "Active";
+  return `<div class="card">
+    <div class="member-card">
+      ${m.photoUrl ? `<img src="${esc(safeUrl(m.photoUrl))}" alt="Photo of ${esc(m.name)}">` : `<div class="ph">${initials}</div>`}
+      <div>
+        <span class="badge ${STATUS_CLASS[st] || ""}">${esc(st)}${st === "Active" ? " member" : ""}</span>
+        ${expired ? ` <span class="badge warn">ID expired</span>` : ""}
+        <h3 style="margin:10px 0 0">${esc(m.name)}</h3>
+        <dl>
+          <dt>ID No.</dt><dd>${esc(id)}</dd>
+          ${m.position ? `<dt>Position</dt><dd>${esc(m.position)}</dd>` : ""}
+          ${m.chapter ? `<dt>Chapter</dt><dd>${esc(m.chapter)}</dd>` : ""}
+          ${m.memberSince ? `<dt>Member since</dt><dd>${fmtDate(m.memberSince)}</dd>` : ""}
+          ${m.validUntil ? `<dt>Valid until</dt><dd>${fmtDate(m.validUntil)}</dd>` : ""}
+        </dl>
+      </div>
+    </div></div>`;
+}
+async function verify(raw) {
+  const id = normId(raw), out = $("#verify-result");
+  if (!id) return;
+  if (!configured) { out.innerHTML = `<div class="notice warn">Verification will be available once the portal is connected.</div>`; return; }
+  if (!/^[A-Z0-9\-]{3,30}$/.test(id)) { out.innerHTML = `<div class="notice bad">That doesn't look like a valid ID number. Use letters, numbers and dashes only.</div>`; return; }
+  out.innerHTML = `<div class="empty">Checking ${esc(id)}…</div>`;
+  try {
+    const snap = await fb.getDoc(fb.doc(db, "registry", id));
+    out.innerHTML = snap.exists() ? memberCard(snap.data(), id)
+      : `<div class="notice bad"><b>No record found for ${esc(id)}.</b> This ID is not in the ACTA member registry. If you believe this is a mistake, contact an ACTA chapter officer.</div>`;
+  } catch (e) { out.innerHTML = `<div class="notice bad">${esc(friendlyError(e))}</div>`; }
+}
+$("#verify-form").addEventListener("submit", e => { e.preventDefault(); verify($("#verify-id").value); });
+const qid = new URLSearchParams(location.search).get("id");
+if (qid) { $("#verify-id").value = normId(qid); verify(qid); setTimeout(() => $("#verify").scrollIntoView(), 50); }
+
+// Announcements (public only)
+async function loadAnnouncements() {
+  const el = $("#ann-list");
+  if (!configured) { el.innerHTML = `<div class="empty">Announcements will appear here once the portal is connected.</div>`; return; }
+  try {
+    const q = fb.query(fb.collection(db, "announcements"), fb.where("audience", "==", "public"), fb.limit(50));
+    const docs = (await fb.getDocs(q)).docs.map(d => d.data())
+      .sort((a, b) => (b.date?.seconds || 0) - (a.date?.seconds || 0)).slice(0, 10);
+    el.innerHTML = docs.length ? docs.map(a => `<article class="post"><small>${fmtDate(a.date)}</small><h3>${esc(a.title)}</h3><p>${esc(a.body)}</p></article>`).join("")
+      : `<div class="empty">No announcements yet.</div>`;
+  } catch (e) { el.innerHTML = `<div class="notice bad">Couldn't load announcements. ${esc(friendlyError(e))}</div>`; }
+}
+loadAnnouncements();
+
+// Application form
+$("#apply-form").addEventListener("submit", async e => {
+  e.preventDefault();
+  const f = e.target, msg = $("#apply-msg"), btn = $("#apply-btn");
+  const v = n => f.elements[n].value.trim();
+  const data = { fullName: v("fullName"), phone: v("phone"), email: v("email"), birthdate: v("birthdate"), chapter: v("chapter"), address: v("address"), occupation: v("occupation"), reason: v("reason") };
+  const missing = ["fullName", "phone", "birthdate", "chapter", "address"].filter(k => !data[k]);
+  if (missing.length || !$("#a-consent").checked) { msg.innerHTML = `<div class="notice bad">Please fill in all required fields (*) and tick the consent box.</div>`; return; }
+  if (!/^[0-9+\-\s()]{7,30}$/.test(data.phone)) { msg.innerHTML = `<div class="notice bad">Please enter a valid mobile number.</div>`; return; }
+  if (!configured) { msg.innerHTML = `<div class="notice warn">Online applications open once the portal is connected. For now, please contact a chapter officer.</div>`; return; }
+  btn.disabled = true; btn.textContent = "Submitting…";
+  try {
+    await fb.addDoc(fb.collection(db, "applications"), { ...data, status: "new", consent: true, createdAt: fb.serverTimestamp() });
+    f.reset();
+    msg.innerHTML = `<div class="notice ok"><b>Thank you! Your application was received.</b> A chapter officer will contact you about the next orientation schedule.</div>`;
+  } catch (err) { msg.innerHTML = `<div class="notice bad">${esc(friendlyError(err))}</div>`; }
+  btn.disabled = false; btn.textContent = "Submit Application";
+});
+</script>
+</body>
+</html>

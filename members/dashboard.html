@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>My Account | ACTA Members Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="../assets/acta-logo.png">
+<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="portal.css">
+<style>@media print{.topbar,footer,.no-print,#updates,#details{display:none!important}.page-top{padding:0}.idcard{box-shadow:none;-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="container nav">
+    <a class="brand" href="../index.html"><img class="brand-logo" src="../assets/acta-logo.png" alt="ACTA logo"><span>Anti-Crime &amp;<br>Traffic Assistance</span></a>
+    <button class="menu" aria-label="Open menu">☰</button>
+    <nav id="navlinks">
+      <a href="../index.html">Main Site</a>
+      <a href="./">Members Portal</a>
+      <a href="admin.html" id="admin-link" class="hidden">Admin</a>
+      <a class="nav-cta" href="#" id="logout">Sign out</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page-top">
+  <div class="container">
+    <div id="setup"></div>
+    <p class="eyebrow blue" id="hello">MY ACCOUNT</p>
+    <div id="loading" class="empty">Loading your account…</div>
+
+    <!-- Pending approval -->
+    <div id="pending" class="hidden">
+      <h2 style="font-size:44px;color:#0b1d3a;margin:0 0 14px">Account awaiting approval</h2>
+      <div class="notice warn" id="pending-text"></div>
+      <p style="color:#4e5d73;line-height:1.7">While you wait, you can still <a href="./#verify">verify member IDs</a>, read <a href="./#announcements">public announcements</a> and check the <a href="../index.html#conduct">Code of Conduct</a>.</p>
+    </div>
+
+    <!-- Active member -->
+    <div id="member" class="hidden">
+      <div class="grid-2" style="align-items:start;gap:40px;margin-bottom:60px">
+        <div>
+          <h2 style="font-size:44px;color:#0b1d3a;margin:0 0 18px">My Digital ID</h2>
+          <div class="idcard" id="idcard"></div>
+          <div class="row no-print" style="margin-top:16px">
+            <button class="btn dark small" onclick="window.print()">Print / save ID</button>
+            <a class="btn line small" id="verify-link" href="#" target="_blank" rel="noopener">Open public verification</a>
+          </div>
+          <p class="muted no-print" style="margin-top:12px">Anyone can scan the QR code to confirm your membership status on the ACTA website.</p>
+        </div>
+        <form class="card" id="details">
+          <h3>My details</h3>
+          <div class="kv" id="fixed" style="margin-bottom:18px"></div>
+          <p class="muted" style="margin:0 0 14px">You can update your contact details below. To change your name, chapter or position, contact an ACTA admin.</p>
+          <div class="field"><label for="d-phone">Mobile number</label><input id="d-phone" maxlength="30" inputmode="tel"></div>
+          <div class="field"><label for="d-address">Address</label><input id="d-address" maxlength="200"></div>
+          <div class="field"><label for="d-emerg">Emergency contact (name &amp; number)</label><input id="d-emerg" maxlength="200"></div>
+          <button class="btn primary" type="submit">Save changes</button>
+        </form>
+      </div>
+
+      <section id="updates">
+        <div class="grid-2" style="align-items:start;gap:40px">
+          <div>
+            <h2 style="font-size:38px;color:#0b1d3a;margin:0 0 18px">Announcements</h2>
+            <div id="ann-list"><div class="empty">Loading…</div></div>
+          </div>
+          <div>
+            <h2 style="font-size:38px;color:#0b1d3a;margin:0 0 18px">Member resources</h2>
+            <div id="res-list" style="display:grid;gap:14px"><div class="empty">Loading…</div></div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</main>
+
+<footer style="margin-top:80px"><div class="container footer"><div class="brand"><img class="brand-logo footer-logo" src="../assets/acta-logo.png" alt="ACTA logo"><span>Anti-Crime &amp; Traffic Assistance</span></div><span>© <span id="year"></span> ACTA. All rights reserved.</span></div></footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script type="module">
+import { configured, auth, db, fb, $, esc, fmtDate, safeUrl, setupBanner, initHeader, getRole, signOut, toast, friendlyError, STATUS_CLASS } from "./portal.js";
+import { publicResources } from "./data.js";
+
+initHeader();
+setupBanner($("#setup"));
+$("#logout").addEventListener("click", e => { e.preventDefault(); signOut(); });
+
+if (!configured) { $("#loading").textContent = "The portal isn't connected yet."; }
+else fb.onAuthStateChanged(auth, async user => {
+  if (!user) return location.replace("login.html");
+  const r = await getRole(user);
+  $("#loading").classList.add("hidden");
+  if (r.admin) $("#admin-link").classList.remove("hidden");
+  if (!r.profile) {
+    $("#hello").textContent = `SIGNED IN AS ${user.email}`.toUpperCase();
+    $("#pending-text").innerHTML = r.signup
+      ? `Thanks, <b>${esc(r.signup.name)}</b>. Your request for member access (ID <b>${esc(r.signup.idNo)}</b>, ${esc(r.signup.chapter)} chapter) has been received. An ACTA admin will check it against the member registry and activate your account.`
+      : r.admin ? `You're an admin but don't have a member profile yet. Go to <a href="admin.html">Admin</a> to add one.`
+      : `Your account doesn't have member access yet. Please contact an ACTA chapter officer.`;
+    $("#pending").classList.remove("hidden");
+    return;
+  }
+  renderMember(r.profile, user);
+});
+
+function renderMember(p, user) {
+  $("#hello").textContent = `WELCOME, ${(p.name || "").split(" ")[0]}`.toUpperCase();
+  const initials = esc((p.name || "?").split(/\s+/).map(w => w[0]).slice(0, 2).join(""));
+  const verifyUrl = new URL(`./?id=${encodeURIComponent(p.idNo)}`, location.href).href;
+  $("#verify-link").href = verifyUrl;
+  const st = p.status || "Active";
+  $("#idcard").innerHTML = `
+    <div class="top"><img src="../assets/acta-logo.png" alt=""><div><b>ANTI-CRIME &amp; TRAFFIC ASSISTANCE</b><small>FORCE MULTIPLIER • MEMBER ID</small></div></div>
+    <div class="mid">
+      ${p.photoUrl ? `<img class="photo" src="${esc(safeUrl(p.photoUrl))}" alt="">` : `<div class="photo">${initials}</div>`}
+      <div style="min-width:0">
+        <div class="nm">${esc(p.name)}</div>
+        <div class="pos">${esc(p.position || "Member")}</div>
+        <div class="meta">Chapter: <b>${esc(p.chapter || "—")}</b><br>${p.validUntil ? `Valid until: <b>${fmtDate(p.validUntil)}</b>` : `Status: <b>${esc(st)}</b>`}</div>
+      </div>
+      <div class="qr" id="qr"></div>
+    </div>
+    <div class="bot"><span>${esc(p.idNo)}</span><span>${esc(st.toUpperCase())}</span></div>`;
+  if (window.QRCode) new QRCode($("#qr"), { text: verifyUrl, width: 128, height: 128, correctLevel: QRCode.CorrectLevel.M });
+
+  $("#fixed").innerHTML = `<b>${esc(p.name)}</b><br>ID ${esc(p.idNo)} · ${esc(p.chapter || "")}${p.position ? " · " + esc(p.position) : ""}<br>${esc(user.email)}<br><span class="badge ${STATUS_CLASS[st] || ""}" style="margin-top:8px">${esc(st)}</span>${p.memberSince ? ` <span class="muted">Member since ${fmtDate(p.memberSince)}</span>` : ""}`;
+  $("#d-phone").value = p.phone || ""; $("#d-address").value = p.address || ""; $("#d-emerg").value = p.emergencyContact || "";
+  $("#details").onsubmit = async e => {
+    e.preventDefault();
+    const btn = e.target.querySelector("button"); btn.disabled = true;
+    try {
+      await fb.updateDoc(fb.doc(db, "profiles", user.uid), { phone: $("#d-phone").value.trim(), address: $("#d-address").value.trim(), emergencyContact: $("#d-emerg").value.trim() });
+      toast("Your details were saved.");
+    } catch (err) { toast(friendlyError(err), "bad"); }
+    btn.disabled = false;
+  };
+  $("#member").classList.remove("hidden");
+  loadUpdates();
+}
+
+async function loadUpdates() {
+  try {
+    const ann = (await fb.getDocs(fb.query(fb.collection(db, "announcements"), fb.limit(100)))).docs.map(d => d.data())
+      .sort((a, b) => (b.date?.seconds || 0) - (a.date?.seconds || 0)).slice(0, 20);
+    $("#ann-list").innerHTML = ann.length ? ann.map(a => `<article class="post"><small>${fmtDate(a.date)}${a.audience === "members" ? ` · <span class="badge gold" style="padding:2px 8px">Members only</span>` : ""}</small><h3>${esc(a.title)}</h3><p>${esc(a.body)}</p></article>`).join("") : `<div class="empty">No announcements yet.</div>`;
+  } catch (e) { $("#ann-list").innerHTML = `<div class="notice bad">${esc(friendlyError(e))}</div>`; }
+  try {
+    const res = (await fb.getDocs(fb.query(fb.collection(db, "resources"), fb.limit(100)))).docs.map(d => d.data())
+      .sort((a, b) => (a.title || "").localeCompare(b.title || ""));
+    const all = [...res, ...publicResources];
+    $("#res-list").innerHTML = all.map(r => `<a class="card res" href="${esc(safeUrl(r.url))}" target="_blank" rel="noopener"><b>${esc(r.title)}</b>${r.description ? `<span>${esc(r.description)}</span>` : ""}<em>Open →</em></a>`).join("");
+  } catch (e) { $("#res-list").innerHTML = `<div class="notice bad">${esc(friendlyError(e))}</div>`; }
+}
+</script>
+</body>
+</html>
