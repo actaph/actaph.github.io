@@ -1,82 +1,146 @@
-# ACTA Members Portal — Setup Guide
+# ACTA Members Portal — Guide
 
-The portal lives in the `members/` folder. It uses **Firebase** (free from Google) for member logins and data. The steps below take about 15 minutes and only need to be done once.
+The Members Portal lives in the `members/` folder of the ACTA website. Member logins and data are stored in **Firebase** (Google), on the free **Spark** plan. Do not click "Upgrade" in Firebase — nothing in the portal needs a paid plan.
 
-Pages:
+**Status (October 2026):** set up and live. Firebase project `acta-members` is connected, security rules are published, and the first admin account is active.
 
-| Page | Address | Who |
+## Pages
+
+| Page | Address | Who uses it |
 |---|---|---|
-| Portal home | `actaph.github.io/members/` | Everyone — verify ID, announcements, chapters, resources, apply |
-| Login | `actaph.github.io/members/login.html` | Members sign in or create an account |
-| My Account | `actaph.github.io/members/dashboard.html` | Approved members — digital ID, details, members-only updates |
-| Admin | `actaph.github.io/members/admin.html` | Admins (e.g. the Founder) — approve accounts, manage registry, posts, applications |
+| Portal home | `actaph.github.io/members/` | Everyone: verify an ID, announcements, chapters, resources, online application |
+| Verify one ID | `actaph.github.io/members/?id=CV-R7-0029` | Opened by scanning the QR code on a digital ID |
+| Login | `actaph.github.io/members/login.html` | Members sign in, create an account, or reset a password |
+| My Account | `actaph.github.io/members/dashboard.html` | Approved members: digital ID with QR code, contact details, members-only announcements and resources |
+| Admin | `actaph.github.io/members/admin.html` | Admins: approvals, member registry, applications, announcements, resources |
+| Printable form | `actaph.github.io/members/print.html` | Blank official Membership Application Form (print or save as PDF) |
 
 ---
 
-## 1. Create the Firebase project
+## Roles
 
-1. Go to **console.firebase.google.com** and sign in with a Google account you can access. Afterwards add at least one more trusted owner under **Settings → Project settings → Users and permissions** (role *Owner*), e.g. actaph@gmail.com.
-2. Click **Create a project**, name it `acta-members`, and finish the steps (Google Analytics can be turned off).
-3. On the project home, click the **Web** icon (`</>`), name the app `ACTA website`, and click **Register app**. Do **not** tick Firebase Hosting.
-4. Firebase shows a block of code with `const firebaseConfig = { ... }`. Keep this page open — you need these values in step 4.
+Admins are listed in the Firestore collection `admins`. Each document's ID is the person's **User UID**, with one text field `role`:
 
-## 2. Turn on email login
+| `role` value | Can do |
+|---|---|
+| `founder` | Everything: final approval of applications and account requests; add, edit and remove members in the registry |
+| `admin` | Same full access as `founder`. For the person who manages the portal |
+| `coordinator` | Membership Coordinator: mark applications *contacted* and *endorsed*, post announcements and resources. Cannot approve, decline, or change member records |
 
-1. Left menu: **Build → Authentication → Get started**.
-2. Under **Sign-in method**, choose **Email/Password**, switch it **on**, and **Save**.
-3. Go to the **Settings** tab → **Authorized domains** → **Add domain** → type `actaph.github.io` → **Add**.
+Everyone else is either an approved **member** (has a digital ID) or an account **awaiting approval**.
 
-## 3. Create the database and security rules
+### Adding an admin or coordinator
 
-1. Left menu: **Build → Firestore Database → Create database**.
-2. Location: pick **asia-southeast1 (Singapore)**. Start in **production mode**.
-3. Open the **Rules** tab, delete everything there, paste the full contents of the `firestore.rules` file from the website folder, and click **Publish**. Whenever `firestore.rules` is updated, paste and publish it again.
+1. The person creates an account at `actaph.github.io/members/login.html` → **Create account**.
+2. In Firebase: **Security → Authentication → Users**. Hover over their **User UID** and click the copy icon. (Don't type it — capital `I` and lowercase `l`, `0` and `O` look alike.)
+3. In **Firestore Database → Data → admins**: click **+ Add document**.
+4. **Document ID:** paste the UID. Field `role`, type *string*, value `founder`, `admin` or `coordinator` (lowercase, no spaces). **Save**.
+5. They sign in again (or refresh with **Ctrl+F5**); **Admin** appears in the top menu.
 
-## 4. Connect the website
+To remove someone's admin access, delete their document in `admins`. To change their role, edit the `role` value.
 
-1. Open `members/firebase-config.js` in Notepad (or on GitHub with the pencil icon).
-2. Replace each `PASTE_...` value with the matching value from step 1.4 (`apiKey`, `authDomain`, `projectId`, `storageBucket`, `messagingSenderId`, `appId`).
-3. Save, then commit and push in GitHub Desktop. After the green tick, the "Portal setup pending" banner disappears.
-
-These values are not secret — they only identify the project. What members can see or change is controlled by the security rules.
-
-## 5. Make the Founder the first admin
-
-Two admin roles mirror the paper form:
-
-- **Founder** — final approval of applications and account requests, and the only one who can add, change or remove members in the registry.
-- **Coordinator** (Membership Coordinator) — reviews and **endorses** applications, posts announcements and resources. Cannot approve.
-
-1. On `actaph.github.io/members/login.html`, open **Create account** and sign up with the Founder's own email, name and ACTA ID.
-2. In Firebase: **Security → Authentication → Users**. Copy the **User UID** of that account.
-3. In **Firestore Database → Data**: click **+ Start collection**, Collection ID `admins`, click **Next**.
-4. Document ID: paste the UID. Add a field named `role` (type string) with the value `founder`. Click **Save**.
-5. Sign in on the website and open **Admin** (top menu). Under **Account requests**, approve the Founder's own request so he also gets a digital ID.
-
-An **Admin** (value `admin`) has the same full access as the Founder — use it for the person who manages the portal.
-
-To add a Membership Coordinator, have them create an account, then repeat steps 2–4 with their UID and the value `coordinator`.
+**When the Founder joins:** add him with `role` = `founder`. The current portal manager stays `admin`.
 
 ---
 
-## Everyday use (Admin page)
+## How members join
 
-- **Account requests** — existing members who signed up with their own email. The page shows whether the ID and name match the registry. Click **Review & approve** (they get member access and a digital ID) or **Reject**.
-- **Member registry** — every ID that can be checked on *Verify ID*. Add all current members here (they don't need an account). To suspend someone, set **Status** to Suspended/Expelled instead of deleting — verification will show that status.
-- **Applications** — submitted with the online version of the official form (with 2×2 photo). The Coordinator marks them *contacted* and *endorsed*; the Founder clicks *Approve* or *Decline*, then **Add to member registry** to assign an ACTA ID. **View / print form** prints the filled-in official form for the applicant's, sponsor's, Coordinator's and Founder's signatures. A blank printable form is at `actaph.github.io/members/print.html`.
-- **Announcements** — post to *Everyone* (shown on the public portal) or *Members only* (shown after login).
-- **Resources** — links to forms and files (e.g. a Google Drive PDF shared as "Anyone with the link"). *Members only* links appear in members' dashboards.
+### Existing members (already have an ACTA ID)
+
+1. Member goes to `actaph.github.io/members/login.html` → **Create account**, and enters their full name, ACTA ID **exactly as printed** (e.g. `CV-R7-0029`), chapter, **personal email** and a password (8+ characters).
+2. They see "Account awaiting approval".
+3. Admin opens **Admin → Account requests**. The *Registry check* column shows whether the ID is already in the registry and whether the name matches.
+4. Click **Review & approve**, check the ID, name, chapter, position and dates, then **Approve**. The member is added to the registry (if not already there) and gets their digital ID under **My Account**.
+5. **Reject** removes the request; the person stays signed up but without member access.
+
+### New applicants (no ACTA ID yet)
+
+1. Applicant fills in the online **Membership Application Form** on the portal home (same sections as the paper form, with optional 2×2 photo), or prints the blank form.
+2. **Admin → Applications:** the Coordinator clicks **Mark contacted**, then **Endorse**.
+3. The Founder/Admin clicks **Approve** (or **Decline**).
+4. On the approved application, click **Add to member registry**, enter the new ACTA ID number, and **Save**.
+5. **View / print form** prints the filled-in official form on one A4 page for the applicant's, sponsor's, Membership Coordinator's and Founder's signatures at orientation.
+6. The new member can then create a portal account (steps above) to get their digital ID.
+
+---
+
+## Everyday admin tasks
+
+- **Member registry:** every ID listed here can be checked on *Verify ID*. Members don't need a portal account to be listed. Use **+ Add member** for current members. To suspend or expel someone, **Edit** and change **Status** (verification will show it) instead of removing them.
+- **ID valid until:** the date boxes are month first (`MM/DD/YYYY`). `01/03/2028` means January 3, 2028.
+- **Announcements:** choose *Everyone (public)* to show on the portal home, or *Members only* for signed-in members. Web addresses in posts show as plain text (not clickable links).
+- **Resources:** links to files or pages, e.g. a Google Drive PDF shared as "Anyone with the link". *Members only* resources appear on members' dashboards.
 
 ### Member photos
 
-Save each photo in the website folder as `assets/members/ID-NUMBER.jpg` (for example `assets/members/CV-R7-0029.jpg`), commit and push, then in the member's record set **Photo link** to `../assets/members/CV-R7-0029.jpg`. Photos are public on the Verify page, so only use photos the member agreed to.
+For now, ID photos are added by link:
 
-### Editing chapters and public resources
+1. Save the photo in the website folder as `assets/members/ID-NUMBER.jpg` (e.g. `assets/members/CV-R7-0029.jpg`).
+2. Commit and push in GitHub Desktop.
+3. In **Member registry → Edit**, set **Photo link** to `../assets/members/CV-R7-0029.jpg` and **Save**.
 
-Chapter names, officers and the public resource links are in `members/data.js`. Edit the names between the quotes, then commit and push.
+Without a photo, the ID card shows the member's initials. Photos are public on the Verify page, so only use photos the member agreed to. (Applicants' 2×2 photos are uploaded directly in the application form.)
+
+### Chapters and public resources
+
+Chapter names, officers and the public resource links are in `members/data.js`. Edit the text between the quotes, then commit and push. Current chapters: Lapu-Lapu City (Founding Chapter), Liloan, Compostela, Danao.
+
+---
+
+## Updating the website
+
+1. Make changes (or unzip an update) in `Documents\GitHub\actaph.github.io`.
+2. GitHub Desktop → write a summary → **Commit to main** → **Push origin**.
+3. On github.com/actaph/actaph.github.io, wait for the **green tick** next to the latest commit (1–2 minutes).
+4. Open the page and press **Ctrl+F5**.
+
+The `Claude outputs` folder is ignored by Git (see `.gitignore`) and never uploaded.
+
+**If `firestore.rules` changes:** Firebase → **Firestore Database → Rules** → select all → paste the whole new file → **Publish**. Pushing to GitHub alone does not update the rules.
+
+---
+
+## Troubleshooting
+
+| Problem | Fix |
+|---|---|
+| Page looks unchanged after an update | Wait for the green tick on GitHub, then **Ctrl+F5**, or open a private window (**Ctrl+Shift+N**) |
+| Red ✕ on GitHub, "deploy" failed with *Request timeout* / *Failed to get ID Token* | GitHub glitch. Open the failed run → **Re-run jobs**. If it keeps failing, make a small commit (e.g. edit `README.txt`) to start a fresh deploy |
+| Settings → Pages shows Source "GitHub Actions" | Change it to **Deploy from a branch**, branch **main**, folder **/(root)** |
+| Admin page says "Coordinator" for a full admin | Check the `role` value in `admins` is exactly `admin` or `founder`, then **Ctrl+F5** |
+| "You don't have permission to do that" when approving | Only `founder`/`admin` can approve. Also check the latest `firestore.rules` is published in Firebase |
+| "Portal setup pending" banner | `members/firebase-config.js` is missing the Firebase values |
+| Forgot password | Login page → **Forgot password** → enter email → open the email from `noreply@acta-members.firebaseapp.com` (check Spam). Or Firebase → Authentication → Users → ⋮ → *Reset password* |
+| Login fails on the live site with a domain error | Firebase → **Security → Authentication → Settings → Authorized domains** must include `actaph.github.io` |
+
+---
+
+## Firebase setup reference (already done)
+
+Kept for reference if the project ever has to be recreated.
+
+1. **Project:** console.firebase.google.com → create project `acta-members` (Analytics off) → **Add app → Web (`</>`)**, nickname `ACTA website`, no Hosting → copy the `firebaseConfig` values into `members/firebase-config.js`. These values are not secret; access is controlled by the security rules.
+2. **Login:** **Security → Authentication → Sign-in method** → enable **Email/Password** (leave Email link off) → **Settings → Authorized domains** → add `actaph.github.io`.
+3. **Database:** **Databases & Storage → Firestore Database → Create database** → Standard edition, ID `(default)`, location **asia-southeast1 (Singapore)**, production mode, no scheduled backups → **Rules** tab → paste `firestore.rules` → **Publish**.
+4. **First admin:** see *Adding an admin or coordinator* above.
+5. **Owners:** add at least one more trusted Google account as **Owner** under **Settings → Project settings → Users and permissions** (e.g. actaph@gmail.com once it is accessible), so the project doesn't depend on one person.
+
+### Database collections
+
+| Collection | Contents | Who can read |
+|---|---|---|
+| `admins` | Admin roles (by User UID) | Each admin reads only their own |
+| `registry` | Member records by ID number: name, chapter, position, status, dates, photo link | Anyone can look up one ID; members/admins can list all |
+| `profiles` | Approved members' accounts, including private contact details | The member themself and admins |
+| `signups` | Account requests awaiting approval | The requester and admins |
+| `applications` | Online membership applications | Admins only |
+| `announcements`, `resources` | Posts and links, marked public or members-only | Public ones: everyone. Members-only: signed-in members and admins |
+
+---
 
 ## Privacy notes
 
-- Phone numbers, addresses and emails are **never** shown on public pages — only name, ID, chapter, position, status and photo.
-- The application form asks for consent under the Data Privacy Act of 2012 (RA 10173). Delete applications you no longer need from the Admin page.
-- Free Firebase limits (50,000 reads and 20,000 writes per day) are far more than ACTA needs.
+- Phone numbers, addresses and emails are **never** shown on public pages. Only name, ID, chapter, position, status and photo appear on *Verify ID*.
+- The application form asks for certification and consent under the Data Privacy Act of 2012 (RA 10173). Delete applications you no longer need (Founder/Admin only).
+- Delete any test members or test applications before announcing the portal.
+- Free Firebase limits (about 50,000 reads and 20,000 writes per day) are far more than ACTA needs.
