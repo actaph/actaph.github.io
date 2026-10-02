@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://actaph.github.io/</loc><lastmod>2026-10-03</lastmod></url>
+  <url><loc>https://actaph.github.io/activities/joint-orientation-2026-09-13.html</loc></url>
+  <url><loc>https://actaph.github.io/activities/community-presence.html</loc></url>
+  <url><loc>https://actaph.github.io/activities/coordination-meetings.html</loc></url>
+  <url><loc>https://actaph.github.io/activities/community-events.html</loc></url>
   <url><loc>https://actaph.github.io/members/</loc></url>
-  <!-- add each activity page here -->
 </urlset>
