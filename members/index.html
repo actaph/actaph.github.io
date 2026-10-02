@@ -88,32 +88,112 @@
 </section>
 
 <section class="p-section" id="apply">
-  <div class="container grid-2" style="align-items:start">
-    <div>
-      <p class="eyebrow blue">JOIN ACTA</p>
-      <h2>Membership Application</h2>
-      <p class="lead">ACTA is a volunteer, community-based force multiplier. Fill in this form and a chapter officer will contact you about orientation, screening and documentation.</p>
-      <div class="mini-grid" style="margin-top:10px">
-        <div><b>01</b><span>Submit this application</span></div>
-        <div><b>02</b><span>Attend member orientation</span></div>
-        <div><b>03</b><span>Screening &amp; documentation</span></div>
-        <div><b>04</b><span>Sworn in as an ACTA member</span></div>
-      </div>
+  <div class="container">
+    <p class="eyebrow blue">JOIN ACTA</p>
+    <h2>Membership Application Form</h2>
+    <p class="lead">The same form as ACTA's official paper application. Fields marked * are required. After you submit, the Membership Coordinator reviews and endorses your application, and the Founder / President gives final approval. You will sign the printed form at your orientation.</p>
+    <div class="mini-grid apply-steps">
+      <div><b>01</b><span>Submit this form</span></div>
+      <div><b>02</b><span>Endorsed by the Membership Coordinator</span></div>
+      <div><b>03</b><span>Approved by the Founder / President</span></div>
+      <div><b>04</b><span>Orientation, signing &amp; oath</span></div>
     </div>
-    <form class="card" id="apply-form" novalidate>
-      <div class="field"><label for="a-name">Full name *</label><input id="a-name" name="fullName" required maxlength="120" autocomplete="name"></div>
-      <div class="grid-2" style="gap:14px">
-        <div class="field"><label for="a-phone">Mobile number *</label><input id="a-phone" name="phone" required maxlength="30" inputmode="tel" autocomplete="tel" placeholder="09XX XXX XXXX"></div>
-        <div class="field"><label for="a-email">Email</label><input id="a-email" name="email" type="email" maxlength="120" autocomplete="email"></div>
-      </div>
-      <div class="grid-2" style="gap:14px">
-        <div class="field"><label for="a-birth">Date of birth *</label><input id="a-birth" name="birthdate" type="date" required></div>
-        <div class="field"><label for="a-chapter">Preferred chapter *</label><select id="a-chapter" name="chapter" required></select></div>
-      </div>
-      <div class="field"><label for="a-address">Home address (barangay, city) *</label><input id="a-address" name="address" required maxlength="200" autocomplete="street-address"></div>
-      <div class="field"><label for="a-occ">Occupation</label><input id="a-occ" name="occupation" maxlength="120"></div>
-      <div class="field"><label for="a-why">Why do you want to join ACTA?</label><textarea id="a-why" name="reason" maxlength="1500"></textarea></div>
-      <div class="field"><label class="check"><input type="checkbox" id="a-consent" required> I agree that ACTA may collect and use the information above to process my membership application, in line with the Data Privacy Act of 2012 (RA 10173).</label></div>
+    <p class="muted" style="margin:18px 0 28px">Prefer paper? <a href="print.html" target="_blank" rel="noopener" style="color:#2756a3;font-weight:700">Print a blank application form</a>.</p>
+
+    <form class="card appform" id="apply-form" novalidate>
+      <fieldset>
+        <legend>Personal information</legend>
+        <div class="photo-pick">
+          <div class="photo-box" id="photo-preview"><span>2 × 2<br>PHOTO</span></div>
+          <div>
+            <label for="a-photo">2×2 photo</label>
+            <input type="file" id="a-photo" accept="image/*">
+            <small>Optional. A clear, recent photo of your face. It will be cropped to a square.</small>
+          </div>
+        </div>
+        <div class="grid-4 g">
+          <div class="field"><label for="f-firstName">First name *</label><input id="f-firstName" name="firstName" autocomplete="given-name"></div>
+          <div class="field"><label for="f-nickname">Nickname</label><input id="f-nickname" name="nickname"></div>
+          <div class="field"><label for="f-middleName">Middle name</label><input id="f-middleName" name="middleName" autocomplete="additional-name"></div>
+          <div class="field"><label for="f-lastName">Last name *</label><input id="f-lastName" name="lastName" autocomplete="family-name"></div>
+        </div>
+        <div class="grid-3 g">
+          <div class="field"><label for="f-birthPlace">Place of birth *</label><input id="f-birthPlace" name="birthPlace"></div>
+          <div class="field"><label for="f-birthdate">Date of birth *</label><input id="f-birthdate" name="birthdate" type="date"></div>
+          <div class="field"><label for="f-civilStatus">Civil status *</label><select id="f-civilStatus" name="civilStatus"></select></div>
+        </div>
+        <div class="grid-4 g">
+          <div class="field"><label for="f-height">Height</label><input id="f-height" name="height" placeholder="e.g. 5'7&quot;"></div>
+          <div class="field"><label for="f-weight">Weight</label><input id="f-weight" name="weight" placeholder="e.g. 70 kg"></div>
+          <div class="field"><label for="f-citizenship">Citizenship *</label><input id="f-citizenship" name="citizenship" value="Filipino"></div>
+          <div class="field"><label for="f-bloodType">Blood type</label><select id="f-bloodType" name="bloodType"><option value=""></option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option><option>O+</option><option>O-</option><option>Unknown</option></select></div>
+        </div>
+        <div class="field"><label for="f-religion">Religion</label><input id="f-religion" name="religion"></div>
+        <p class="sub">Address</p>
+        <div class="grid-3 g">
+          <div class="field"><label for="f-street">Street no.</label><input id="f-street" name="street" autocomplete="address-line1"></div>
+          <div class="field"><label for="f-barangay">Barangay *</label><input id="f-barangay" name="barangay"></div>
+          <div class="field"><label for="f-city">Municipality / City *</label><input id="f-city" name="city" autocomplete="address-level2"></div>
+        </div>
+        <div class="grid-3 g">
+          <div class="field"><label for="f-province">Province *</label><input id="f-province" name="province" value="Cebu" autocomplete="address-level1"></div>
+          <div class="field"><label for="f-zip">Zip code</label><input id="f-zip" name="zip" inputmode="numeric" autocomplete="postal-code"></div>
+          <div class="field"><label for="f-chapter">Preferred chapter *</label><select id="f-chapter" name="chapter"></select></div>
+        </div>
+        <div class="grid-3 g">
+          <div class="field"><label for="f-phone">Cellphone no. *</label><input id="f-phone" name="phone" inputmode="tel" autocomplete="tel" placeholder="09XX XXX XXXX"></div>
+          <div class="field"><label for="f-telephone">Telephone no.</label><input id="f-telephone" name="telephone" inputmode="tel"></div>
+          <div class="field"><label for="f-email">Email</label><input id="f-email" name="email" type="email" autocomplete="email"></div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Employment / profession</legend>
+        <div class="grid-2 g">
+          <div class="field"><label for="f-employer">Name of office / line of business</label><input id="f-employer" name="employer" autocomplete="organization"></div>
+          <div class="field"><label for="f-employerAddress">Office address</label><input id="f-employerAddress" name="employerAddress"></div>
+        </div>
+        <div class="grid-3 g">
+          <div class="field"><label for="f-jobTitle">Title and position</label><input id="f-jobTitle" name="jobTitle" autocomplete="organization-title"></div>
+          <div class="field"><label for="f-workTel">Tel. no.</label><input id="f-workTel" name="workTel" inputmode="tel"></div>
+          <div class="field"><label for="f-workFax">Fax no.</label><input id="f-workFax" name="workFax" inputmode="tel"></div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>List of legal dependents</legend>
+        <div class="grid-2 g">
+          <div class="field"><label for="f-spouseName">Spouse name</label><input id="f-spouseName" name="spouseName"></div>
+          <div class="field"><label for="f-spouseBirthdate">Spouse date of birth</label><input id="f-spouseBirthdate" name="spouseBirthdate" type="date"></div>
+        </div>
+        <p class="sub">Children</p>
+        <div id="children"></div>
+        <button type="button" class="btn line small" id="add-child">+ Add child</button>
+      </fieldset>
+
+      <fieldset>
+        <legend>Educational attainment</legend>
+        <div class="grid-edu g">
+          <div class="field"><label for="f-elementary">Elementary</label><input id="f-elementary" name="elementary" placeholder="School name"></div>
+          <div class="field"><label for="f-elementaryYear">Date graduated</label><input id="f-elementaryYear" name="elementaryYear" placeholder="Year"></div>
+          <div class="field"><label for="f-highSchool">High school</label><input id="f-highSchool" name="highSchool" placeholder="School name"></div>
+          <div class="field"><label for="f-highSchoolYear">Date graduated</label><input id="f-highSchoolYear" name="highSchoolYear" placeholder="Year"></div>
+          <div class="field"><label for="f-college">College</label><input id="f-college" name="college" placeholder="School name"></div>
+          <div class="field"><label for="f-collegeYear">Date graduated</label><input id="f-collegeYear" name="collegeYear" placeholder="Year"></div>
+        </div>
+        <div class="field"><label for="f-course">Course</label><input id="f-course" name="course"></div>
+        <div class="grid-2 g">
+          <div class="field"><label for="f-hobbies">Hobbies</label><input id="f-hobbies" name="hobbies"></div>
+          <div class="field"><label for="f-skills">Special skills</label><input id="f-skills" name="skills" placeholder="e.g. first aid, driving, radio"></div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Sponsor</legend>
+        <div class="field"><label for="f-sponsorName">Sponsor's name</label><input id="f-sponsorName" name="sponsorName"><small>The existing ACTA member who referred you, if any. Your sponsor signs the printed form at orientation.</small></div>
+      </fieldset>
+
+      <div class="field"><label class="check"><input type="checkbox" id="a-consent"> I certify that the information above is true and correct, and I agree that ACTA may collect and use it to process my membership application, in line with the Data Privacy Act of 2012 (RA 10173).</label></div>
       <button class="btn primary" type="submit" id="apply-btn">Submit Application</button>
       <div id="apply-msg" style="margin-top:16px" aria-live="polite"></div>
     </form>
@@ -139,7 +219,6 @@ $("#chapter-list").innerHTML = chapters.map(c => `
     ${c.officers.length ? `<ul>${c.officers.map(o => `<li><small>${esc(o.role)}</small>${esc(o.name)}</li>`).join("")}</ul>` : `<p class="tbc">Chapter officers to be confirmed</p>`}
     ${c.contact ? `<p style="margin:14px 0 0;font-size:14px"><b>Contact:</b> ${esc(c.contact)}</p>` : ""}
   </div>`).join("");
-$("#a-chapter").innerHTML = `<option value="">Select a chapter</option>` + chapters.map(c => `<option>${esc(c.name)}</option>`).join("") + `<option>Not sure yet</option>`;
 
 // Resources
 $("#resource-list").innerHTML = publicResources.map(r => `
@@ -197,23 +276,53 @@ async function loadAnnouncements() {
 }
 loadAnnouncements();
 
-// Application form
-$("#apply-form").addEventListener("submit", async e => {
-  e.preventDefault();
-  const f = e.target, msg = $("#apply-msg"), btn = $("#apply-btn");
-  const v = n => f.elements[n].value.trim();
-  const data = { fullName: v("fullName"), phone: v("phone"), email: v("email"), birthdate: v("birthdate"), chapter: v("chapter"), address: v("address"), occupation: v("occupation"), reason: v("reason") };
-  const missing = ["fullName", "phone", "birthdate", "chapter", "address"].filter(k => !data[k]);
-  if (missing.length || !$("#a-consent").checked) { msg.innerHTML = `<div class="notice bad">Please fill in all required fields (*) and tick the consent box.</div>`; return; }
-  if (!/^[0-9+\-\s()]{7,30}$/.test(data.phone)) { msg.innerHTML = `<div class="notice bad">Please enter a valid mobile number.</div>`; return; }
-  if (!configured) { msg.innerHTML = `<div class="notice warn">Online applications open once the portal is connected. For now, please contact a chapter officer.</div>`; return; }
-  btn.disabled = true; btn.textContent = "Submitting…";
-  try {
-    await fb.addDoc(fb.collection(db, "applications"), { ...data, status: "new", consent: true, createdAt: fb.serverTimestamp() });
-    f.reset();
-    msg.innerHTML = `<div class="notice ok"><b>Thank you! Your application was received.</b> A chapter officer will contact you about the next orientation schedule.</div>`;
-  } catch (err) { msg.innerHTML = `<div class="notice bad">${esc(friendlyError(err))}</div>`; }
-  btn.disabled = false; btn.textContent = "Submit Application";
+// Application form (mirrors the official paper form)
+import("./appform.js").then(({ TEXT_FIELDS, CIVIL, MAX_CHILDREN, shrinkPhoto }) => {
+  const f = $("#apply-form"), msg = $("#apply-msg"), btn = $("#apply-btn");
+  $("#f-civilStatus").innerHTML = `<option value=""></option>` + CIVIL.map(c => `<option>${c}</option>`).join("");
+  $("#f-chapter").innerHTML = `<option value=""></option>` + chapters.map(c => `<option>${esc(c.name)}</option>`).join("") + `<option>Not sure yet</option>`;
+  for (const [k, [, max]] of Object.entries(TEXT_FIELDS)) { const el = f.elements[k]; if (el && el.tagName === "INPUT" && el.type !== "date") el.maxLength = max; }
+
+  const kids = $("#children");
+  function addChild() {
+    if (kids.children.length >= MAX_CHILDREN) return;
+    const row = document.createElement("div"); row.className = "child-row";
+    row.innerHTML = `<input placeholder="Child's full name" maxlength="120" aria-label="Child's name"><input type="date" aria-label="Child's date of birth"><button type="button" class="btn line small" aria-label="Remove">×</button>`;
+    row.querySelector("button").onclick = () => { row.remove(); $("#add-child").disabled = false; };
+    kids.appendChild(row);
+    $("#add-child").disabled = kids.children.length >= MAX_CHILDREN;
+  }
+  $("#add-child").onclick = addChild;
+
+  let photo = "";
+  $("#a-photo").addEventListener("change", async e => {
+    const file = e.target.files[0]; if (!file) return;
+    try { photo = await shrinkPhoto(file); $("#photo-preview").innerHTML = `<img src="${photo}" alt="Your photo">`; }
+    catch (err) { photo = ""; e.target.value = ""; toast(err.message, "bad"); }
+  });
+
+  f.addEventListener("submit", async e => {
+    e.preventDefault();
+    const data = {};
+    for (const k of Object.keys(TEXT_FIELDS)) data[k] = (f.elements[k]?.value || "").trim();
+    data.children = [...kids.children].map(r => ({ name: r.children[0].value.trim(), birthdate: r.children[1].value })).filter(c => c.name);
+    const missing = Object.entries(TEXT_FIELDS).filter(([k, [, , req]]) => req && !data[k]).map(([, [label]]) => label);
+    f.querySelectorAll(".invalid").forEach(x => x.classList.remove("invalid"));
+    Object.entries(TEXT_FIELDS).forEach(([k, [, , req]]) => { if (req && !data[k]) f.elements[k]?.classList.add("invalid"); });
+    if (missing.length) { msg.innerHTML = `<div class="notice bad">Please fill in: <b>${missing.map(esc).join(", ")}</b>.</div>`; f.querySelector(".invalid")?.focus(); return; }
+    if (!/^[0-9+\-\s()]{7,30}$/.test(data.phone)) { msg.innerHTML = `<div class="notice bad">Please enter a valid cellphone number.</div>`; f.elements.phone.focus(); return; }
+    if (data.email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(data.email)) { msg.innerHTML = `<div class="notice bad">Please check your email address.</div>`; f.elements.email.focus(); return; }
+    if (!$("#a-consent").checked) { msg.innerHTML = `<div class="notice bad">Please tick the certification and consent box.</div>`; return; }
+    if (!configured) { msg.innerHTML = `<div class="notice warn">Online applications open once the portal is connected. For now, please use the printable form or contact a chapter officer.</div>`; return; }
+    btn.disabled = true; btn.textContent = "Submitting…";
+    try {
+      await fb.addDoc(fb.collection(db, "applications"), { ...data, photo, status: "new", consent: true, createdAt: fb.serverTimestamp() });
+      f.reset(); kids.innerHTML = ""; photo = ""; $("#photo-preview").innerHTML = `<span>2 × 2<br>PHOTO</span>`;
+      msg.innerHTML = `<div class="notice ok"><b>Thank you! Your application was received.</b> The Membership Coordinator will review it and contact you about the next orientation, where you will sign the printed form.</div>`;
+      msg.scrollIntoView({ block: "center" });
+    } catch (err) { msg.innerHTML = `<div class="notice bad">${esc(friendlyError(err))}</div>`; }
+    btn.disabled = false; btn.textContent = "Submit Application";
+  });
 });
 </script>
 </body>

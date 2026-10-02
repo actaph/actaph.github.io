@@ -19,6 +19,7 @@ export const chapters = [
 
 // Public resources (anyone can see). Members-only resources are added from the Admin page.
 export const publicResources = [
+  { title: "Membership Application Form", description: "Printable copy of the official ACTA application form, for applicants who prefer paper.", url: "print.html" },
   { title: "Code of Conduct", description: "Standards of discipline for ACTA members and officers, with penalties.", url: "../index.html#conduct" },
   { title: "Uniform guide", description: "Official ACTA uniforms, polo shirts and reflective vests.", url: "../index.html#uniforms" },
   { title: "Programs", description: "What ACTA members do: traffic assistance, anti-crime support and community service.", url: "../index.html#programs" }

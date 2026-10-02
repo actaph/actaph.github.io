@@ -1,11 +1,10 @@
-// ACTA Members Portal — Firebase connection settings.
-// Paste the values from Firebase Console → Project settings → General → Your apps → Web app (SDK setup and configuration).
+// ACTA Members Portal — Firebase connection settings (project: acta-members).
 // These values are safe to publish; access to data is controlled by the security rules (firestore.rules).
 export const firebaseConfig = {
-  apiKey: "PASTE_API_KEY_HERE",
-  authDomain: "PASTE_PROJECT_ID.firebaseapp.com",
-  projectId: "PASTE_PROJECT_ID",
-  storageBucket: "PASTE_PROJECT_ID.appspot.com",
-  messagingSenderId: "PASTE_SENDER_ID",
-  appId: "PASTE_APP_ID"
+  apiKey: "AIzaSyD-I8fyN1F27Q-VbaFbh_5XA1OAVVHwR9o",
+  authDomain: "acta-members.firebaseapp.com",
+  projectId: "acta-members",
+  storageBucket: "acta-members.firebasestorage.app",
+  messagingSenderId: "807916829815",
+  appId: "1:807916829815:web:4d4cfb809b9958ca2e1a72"
 };

@@ -29,7 +29,8 @@
   <div class="container">
     <div id="setup"></div>
     <p class="eyebrow blue">ADMIN</p>
-    <h2 style="font-size:48px;color:#0b1d3a;margin:0 0 24px">Portal administration</h2>
+    <h2 style="font-size:48px;color:#0b1d3a;margin:0 0 10px">Portal administration</h2>
+    <p id="role-line" class="muted" style="margin:0 0 24px"></p>
     <div id="gate" class="empty">Checking admin access…</div>
 
     <div id="app" class="hidden">
@@ -56,7 +57,8 @@
       </section>
 
       <section class="tabpane" id="applications">
-        <p style="color:#4e5d73">New applicants from the public application form. Contact them about orientation, then update the status.</p>
+        <p style="color:#4e5d73;max-width:760px">Applications submitted with the online form. The <b>Membership Coordinator</b> contacts the applicant and <b>endorses</b> the application; the <b>Founder / President</b> gives final <b>approval</b> and then assigns an ACTA ID in the member registry. Use <b>View / print form</b> to print the official form for signatures.</p>
+        <div class="row" style="margin-bottom:14px"><label style="margin:0">Show</label><select id="app-filter" style="width:auto"><option value="open">Waiting for action</option><option value="all">All applications</option><option value="approved">Approved</option><option value="declined">Declined</option></select></div>
         <div id="applications-list"></div>
       </section>
 
@@ -121,6 +123,7 @@
 <script type="module">
 import { configured, auth, db, fb, $, $$, esc, fmtDate, normId, safeUrl, setupBanner, initHeader, getRole, signOut, toast, friendlyError, STATUS_CLASS } from "./portal.js";
 import { chapters } from "./data.js";
+import { fullName, address, APP_STATUS } from "./appform.js";
 
 initHeader();
 setupBanner($("#setup"));
@@ -132,7 +135,8 @@ $$(".tabs button").forEach(b => b.addEventListener("click", () => {
 $("#m-chapter").innerHTML = chapters.map(c => `<option>${esc(c.name)}</option>`).join("");
 
 const C = n => fb.collection(db, n), D = (n, id) => fb.doc(db, n, id);
-let me = null, registry = [], profiles = [];
+let me = null, role = null, registry = [], profiles = [];
+const founder = () => role === "founder";
 const REG_FIELDS = ["name", "chapter", "position", "status", "photoUrl", "memberSince", "validUntil"];
 
 if (!configured) $("#gate").textContent = "The portal isn't connected yet.";
@@ -140,7 +144,11 @@ else fb.onAuthStateChanged(auth, async user => {
   if (!user) return location.replace("login.html");
   const r = await getRole(user);
   if (!r.admin) { $("#gate").className = "notice bad"; $("#gate").innerHTML = "This page is for ACTA portal admins only. <a href='dashboard.html'>Go to my account</a>"; return; }
-  me = user; $("#gate").classList.add("hidden"); $("#app").classList.remove("hidden");
+  me = user; role = r.adminRole; $("#gate").classList.add("hidden"); $("#app").classList.remove("hidden");
+  $("#role-line").innerHTML = founder()
+    ? `Signed in as <b>${esc(user.email)}</b> <span class="badge gold role-badge">Founder</span> — you can give final approval and manage member records.`
+    : `Signed in as <b>${esc(user.email)}</b> <span class="badge role-badge">Coordinator</span> — you can endorse applications and post updates. Final approval and member records are for the Founder.`;
+  if (!founder()) $("#add-member").classList.add("hidden");
   refreshAll();
 });
 
@@ -166,7 +174,7 @@ function renderMembers() {
     return `<tr><td><b>${esc(m.idNo)}</b></td><td>${esc(m.name)}</td><td>${esc(m.chapter)}</td><td>${esc(m.position || "Member")}</td>
       <td><span class="badge ${STATUS_CLASS[m.status] || ""}">${esc(m.status || "Active")}</span></td><td>${m.validUntil ? fmtDate(m.validUntil) : "—"}</td>
       <td>${acct ? `<span class="badge ok" title="${esc(acct.email)}">Linked</span>` : `<span class="muted">—</span>`}</td>
-      <td class="row" style="flex-wrap:nowrap"><button class="btn line small" data-edit="${esc(m.idNo)}">Edit</button><button class="btn danger small" data-del="${esc(m.idNo)}">Remove</button></td></tr>`;
+      <td class="row" style="flex-wrap:nowrap">${founder() ? `<button class="btn line small" data-edit="${esc(m.idNo)}">Edit</button><button class="btn danger small" data-del="${esc(m.idNo)}">Remove</button>` : ""}</td></tr>`;
   }).join("") : `<tr><td colspan="8"><div class="empty">${registry.length ? "No matches." : "No members yet. Click “+ Add member”."}</div></td></tr>`;
 }
 $("#member-search").addEventListener("input", renderMembers);
@@ -188,7 +196,7 @@ let dialogCtx = null;
 function openMember(m, ctx) {
   dialogCtx = ctx;
   $("#md-title").textContent = ctx.signup ? "Approve member access" : ctx.editing ? `Edit ${m.idNo}` : "Add member";
-  $("#md-note").innerHTML = ctx.signup ? `<div class="notice">Approving <b>${esc(ctx.signup.email)}</b>. ${ctx.existing ? "This ID is already in the registry — its record is shown below." : "This ID is not in the registry yet — it will be added."} Check the details, then save.</div>` : "";
+  $("#md-note").innerHTML = ctx.fromApp ? `<div class="notice">Approved applicant <b>${esc(fullName(ctx.fromApp))}</b>. Enter the ACTA ID number to assign, then save. They can then verify their ID and create a portal account.</div>` : ctx.signup ? `<div class="notice">Approving <b>${esc(ctx.signup.email)}</b>. ${ctx.existing ? "This ID is already in the registry — its record is shown below." : "This ID is not in the registry yet — it will be added."} Check the details, then save.</div>` : "";
   $("#m-id").value = m.idNo || ""; $("#m-id").readOnly = !!ctx.editing || !!ctx.signup;
   $("#m-name").value = m.name || ""; $("#m-chapter").value = m.chapter || chapters[0].name; $("#m-position").value = m.position || "";
   $("#m-status").value = m.status || "Active"; $("#m-since").value = m.memberSince || ""; $("#m-valid").value = m.validUntil || ""; $("#m-photo").value = m.photoUrl || "";
@@ -214,7 +222,7 @@ $("#member-form").addEventListener("submit", e => {
     }
     await b.commit();
     $("#member-dialog").close();
-    await Promise.all([loadMembers(), ctx.signup ? loadRequests() : null]);
+    await loadMembers(); if (ctx.signup) await loadRequests(); if (ctx.fromApp) renderApplications();
   }, ctx.signup ? `${name} approved.` : `${idNo} saved.`);
 });
 
@@ -227,7 +235,7 @@ async function loadRequests() {
     signups.map(s => { const reg = registry.find(m => m.idNo === s.idNo);
       const check = !reg ? `<span class="badge warn">ID not in registry</span>` : reg.name.trim().toLowerCase() === (s.name || "").trim().toLowerCase() ? `<span class="badge ok">Name matches</span>` : `<span class="badge warn">Registry name: ${esc(reg.name)}</span>`;
       return `<tr><td><b>${esc(s.name)}</b></td><td>${esc(s.idNo)}</td><td>${esc(s.chapter)}</td><td>${esc(s.email)}</td><td>${fmtDate(s.createdAt)}</td><td>${check}</td>
-      <td class="row" style="flex-wrap:nowrap"><button class="btn primary small" data-approve="${esc(s.uid)}">Review &amp; approve</button><button class="btn danger small" data-reject="${esc(s.uid)}">Reject</button></td></tr>`; }).join("")
+      <td class="row" style="flex-wrap:nowrap">${founder() ? `<button class="btn primary small" data-approve="${esc(s.uid)}">Review &amp; approve</button><button class="btn danger small" data-reject="${esc(s.uid)}">Reject</button>` : `<span class="muted">Waiting for Founder</span>`}</td></tr>`; }).join("")
   }</tbody></table></div>` : `<div class="empty">No pending account requests.</div>`;
 }
 $("#requests-list").addEventListener("click", e => {
@@ -241,18 +249,57 @@ $("#requests-list").addEventListener("click", e => {
 
 /* ---------- Applications ---------- */
 let apps = [];
-const APP_STATUS = ["new", "contacted", "accepted", "declined"];
+const OPEN = ["new", "contacted", "endorsed"];
 async function loadApplications() {
   apps = (await fb.getDocs(C("applications"))).docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
-  $("#n-applications").textContent = apps.filter(a => a.status === "new").length;
-  $("#applications-list").innerHTML = apps.length ? apps.map(a => `<div class="card" style="margin-bottom:14px">
-    <div class="row" style="justify-content:space-between"><h3 style="margin:0">${esc(a.fullName)}</h3><small class="muted">${fmtDate(a.createdAt)}</small></div>
-    <div class="kv" style="margin:10px 0 14px"><b>Mobile:</b> ${esc(a.phone)}${a.email ? ` · <b>Email:</b> ${esc(a.email)}` : ""}<br><b>Chapter:</b> ${esc(a.chapter)} · <b>Born:</b> ${esc(a.birthdate)}${a.occupation ? ` · <b>Occupation:</b> ${esc(a.occupation)}` : ""}<br><b>Address:</b> ${esc(a.address)}${a.reason ? `<br><b>Reason:</b> ${esc(a.reason)}` : ""}</div>
-    <div class="row"><label style="margin:0">Status</label><select data-app="${esc(a.id)}" style="width:auto">${APP_STATUS.map(s => `<option ${s === a.status ? "selected" : ""}>${s}</option>`).join("")}</select>
-    <button class="btn danger small" data-appdel="${esc(a.id)}">Delete</button></div></div>`).join("") : `<div class="empty">No applications yet.</div>`;
+  $("#n-applications").textContent = apps.filter(a => OPEN.includes(a.status || "new")).length;
+  renderApplications();
 }
-$("#applications-list").addEventListener("change", e => { const s = e.target.closest("[data-app]"); if (s) act(async () => { await fb.updateDoc(D("applications", s.dataset.app), { status: s.value }); await loadApplications(); }, "Status updated."); });
-$("#applications-list").addEventListener("click", e => { const d = e.target.closest("[data-appdel]"); if (d && confirm("Delete this application permanently?")) act(async () => { await fb.deleteDoc(D("applications", d.dataset.appdel)); await loadApplications(); }, "Application deleted."); });
+function renderApplications() {
+  const f = $("#app-filter").value;
+  const list = apps.filter(a => f === "all" || (f === "open" ? OPEN.includes(a.status || "new") : a.status === f));
+  $("#applications-list").innerHTML = list.length ? list.map(a => {
+    const st = a.status || "new", [label, cls] = APP_STATUS[st] || [st, ""];
+    const inReg = registry.find(m => (m.name || "").trim().toLowerCase() === fullName({ ...a, nickname: "" }).trim().toLowerCase());
+    const btns = [`<a class="btn line small" href="print.html?id=${encodeURIComponent(a.id)}" target="_blank" rel="noopener">View / print form</a>`];
+    if (st === "new") btns.push(`<button class="btn line small" data-app="${esc(a.id)}" data-st="contacted">Mark contacted</button>`);
+    if (st === "new" || st === "contacted") btns.push(`<button class="btn dark small" data-app="${esc(a.id)}" data-st="endorsed">Endorse</button>`);
+    if (founder() && OPEN.includes(st)) btns.push(`<button class="btn primary small" data-app="${esc(a.id)}" data-st="approved">Approve</button>`, `<button class="btn danger small" data-app="${esc(a.id)}" data-st="declined">Decline</button>`);
+    if (founder() && st === "approved") btns.push(inReg ? `<span class="badge ok">In registry as ${esc(inReg.idNo)}</span>` : `<button class="btn primary small" data-toreg="${esc(a.id)}">Add to member registry</button>`);
+    if (founder() && !OPEN.includes(st)) btns.push(`<button class="btn line small" data-app="${esc(a.id)}" data-st="new">Reopen</button>`);
+    if (founder()) btns.push(`<button class="btn danger small" data-appdel="${esc(a.id)}">Delete</button>`);
+    return `<div class="card" style="margin-bottom:14px">
+      <div class="app-head">
+        ${a.photo ? `<img class="app-photo" src="${esc(a.photo)}" alt="">` : ""}
+        <div style="flex:1;min-width:0">
+          <div class="row" style="justify-content:space-between"><h3 style="margin:0">${esc(fullName(a))}</h3><span class="badge ${cls}">${esc(label)}</span></div>
+          <div class="kv" style="margin:8px 0 12px"><b>Cellphone:</b> ${esc(a.phone)}${a.email ? ` · <b>Email:</b> ${esc(a.email)}` : ""} · <b>Chapter:</b> ${esc(a.chapter)}<br>
+            <b>Born:</b> ${fmtDate(a.birthdate)}${a.birthPlace ? `, ${esc(a.birthPlace)}` : ""} · <b>Civil status:</b> ${esc(a.civilStatus || "—")}<br>
+            <b>Address:</b> ${esc(address(a))}${a.jobTitle || a.employer ? `<br><b>Work:</b> ${esc([a.jobTitle, a.employer].filter(Boolean).join(", "))}` : ""}${a.sponsorName ? `<br><b>Sponsor:</b> ${esc(a.sponsorName)}` : ""}
+            <br><span class="muted">Submitted ${fmtDate(a.createdAt)}${a.endorsedBy ? ` · Endorsed by ${esc(a.endorsedBy)} on ${fmtDate(a.endorsedAt)}` : ""}${a.decidedBy ? ` · ${st === "approved" ? "Approved" : "Decided"} by ${esc(a.decidedBy)} on ${fmtDate(a.decidedAt)}` : ""}</span></div>
+          <div class="row">${btns.join("")}</div>
+        </div>
+      </div></div>`;
+  }).join("") : `<div class="empty">No applications here.</div>`;
+}
+$("#app-filter").addEventListener("change", renderApplications);
+$("#applications-list").addEventListener("click", e => {
+  const b = e.target.closest("[data-st]"), d = e.target.closest("[data-appdel]"), r = e.target.closest("[data-toreg]");
+  if (b) {
+    const a = apps.find(x => x.id === b.dataset.app), st = b.dataset.st, name = fullName(a);
+    const ask = { endorsed: `Endorse the application of ${name}?`, approved: `Give final approval to ${name}? You can then assign an ACTA ID.`, declined: `Decline the application of ${name}?`, new: `Reopen this application?` }[st];
+    if (ask && !confirm(ask)) return;
+    const upd = { status: st };
+    if (st === "endorsed") Object.assign(upd, { endorsedBy: me.email, endorsedAt: fb.serverTimestamp() });
+    if (st === "approved" || st === "declined") Object.assign(upd, { decidedBy: me.email, decidedAt: fb.serverTimestamp() });
+    act(async () => { await fb.updateDoc(D("applications", a.id), upd); await loadApplications(); }, `${APP_STATUS[st][0]}.`);
+  }
+  if (r) {
+    const a = apps.find(x => x.id === r.dataset.toreg);
+    openMember({ name: fullName({ ...a, nickname: "" }), chapter: chapters.some(c => c.name === a.chapter) ? a.chapter : chapters[0].name, status: "Active", memberSince: new Date().toISOString().slice(0, 10), photoUrl: "" }, { fromApp: a });
+  }
+  if (d && confirm("Delete this application permanently?")) act(async () => { await fb.deleteDoc(D("applications", d.dataset.appdel)); await loadApplications(); }, "Application deleted.");
+});
 
 /* ---------- Announcements & resources ---------- */
 async function loadAnnouncements() {

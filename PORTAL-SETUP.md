@@ -15,7 +15,7 @@ Pages:
 
 ## 1. Create the Firebase project
 
-1. Go to **console.firebase.google.com** and sign in with the Google account ACTA will own the portal with.
+1. Go to **console.firebase.google.com** and sign in with a Google account you can access. Afterwards add at least one more trusted owner under **Settings → Project settings → Users and permissions** (role *Owner*), e.g. actaph@gmail.com.
 2. Click **Create a project**, name it `acta-members`, and finish the steps (Google Analytics can be turned off).
 3. On the project home, click the **Web** icon (`</>`), name the app `ACTA website`, and click **Register app**. Do **not** tick Firebase Hosting.
 4. Firebase shows a block of code with `const firebaseConfig = { ... }`. Keep this page open — you need these values in step 4.
@@ -30,7 +30,7 @@ Pages:
 
 1. Left menu: **Build → Firestore Database → Create database**.
 2. Location: pick **asia-southeast1 (Singapore)**. Start in **production mode**.
-3. Open the **Rules** tab, delete everything there, paste the full contents of the `firestore.rules` file from the website folder, and click **Publish**.
+3. Open the **Rules** tab, delete everything there, paste the full contents of the `firestore.rules` file from the website folder, and click **Publish**. Whenever `firestore.rules` is updated, paste and publish it again.
 
 ## 4. Connect the website
 
@@ -42,13 +42,18 @@ These values are not secret — they only identify the project. What members can
 
 ## 5. Make the Founder the first admin
 
+Two admin roles mirror the paper form:
+
+- **Founder** — final approval of applications and account requests, and the only one who can add, change or remove members in the registry.
+- **Coordinator** (Membership Coordinator) — reviews and **endorses** applications, posts announcements and resources. Cannot approve.
+
 1. On `actaph.github.io/members/login.html`, open **Create account** and sign up with the Founder's own email, name and ACTA ID.
-2. In Firebase: **Authentication → Users**. Copy the **User UID** of that account.
+2. In Firebase: **Security → Authentication → Users**. Copy the **User UID** of that account.
 3. In **Firestore Database → Data**: click **+ Start collection**, Collection ID `admins`, click **Next**.
-4. Document ID: paste the UID. Add a field `name` (string) = `Founder`. Click **Save**.
+4. Document ID: paste the UID. Add a field named `role` (type string) with the value `founder`. Click **Save**.
 5. Sign in on the website and open **Admin** (top menu). Under **Account requests**, approve the Founder's own request so he also gets a digital ID.
 
-To add another admin later, repeat steps 2–4 with that person's UID. Only people in the `admins` collection can approve members.
+To add a Membership Coordinator, have them create an account, then repeat steps 2–4 with their UID and the value `coordinator`.
 
 ---
 
@@ -56,7 +61,7 @@ To add another admin later, repeat steps 2–4 with that person's UID. Only peop
 
 - **Account requests** — existing members who signed up with their own email. The page shows whether the ID and name match the registry. Click **Review & approve** (they get member access and a digital ID) or **Reject**.
 - **Member registry** — every ID that can be checked on *Verify ID*. Add all current members here (they don't need an account). To suspend someone, set **Status** to Suspended/Expelled instead of deleting — verification will show that status.
-- **Applications** — new applicants from the online form. Contact them, then set the status (contacted / accepted / declined).
+- **Applications** — submitted with the online version of the official form (with 2×2 photo). The Coordinator marks them *contacted* and *endorsed*; the Founder clicks *Approve* or *Decline*, then **Add to member registry** to assign an ACTA ID. **View / print form** prints the filled-in official form for the applicant's, sponsor's, Coordinator's and Founder's signatures. A blank printable form is at `actaph.github.io/members/print.html`.
 - **Announcements** — post to *Everyone* (shown on the public portal) or *Members only* (shown after login).
 - **Resources** — links to forms and files (e.g. a Google Drive PDF shared as "Anyone with the link"). *Members only* links appear in members' dashboards.
 

@@ -65,6 +65,7 @@ export async function getRole(user) {
     user,
     profile: p?.exists() ? p.data() : null,
     admin: !!a?.exists(),
+    adminRole: a?.exists() ? (a.data().role === "founder" ? "founder" : "coordinator") : null,
     signup: s?.exists() ? s.data() : null
   };
 }
@@ -90,7 +91,7 @@ export function friendlyError(e) {
     "auth/invalid-email": "Please enter a valid email address.",
     "auth/too-many-requests": "Too many attempts. Please wait a few minutes and try again.",
     "auth/network-request-failed": "No internet connection. Please try again.",
-    "permission-denied": "You don't have permission to do that."
+    "permission-denied": "You don't have permission to do that. Approvals and member records can only be changed by the Founder."
   };
   return map[c] || e?.message || "Something went wrong. Please try again.";
 }

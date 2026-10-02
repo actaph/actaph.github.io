@@ -111,3 +111,22 @@ dialog h3{font-family:"Barlow Condensed";font-size:28px;margin:0 0 16px;color:#0
 .hidden{display:none!important}
 @media(max-width:900px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr 1fr}.subnav{top:76px}}
 @media(max-width:560px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}.subnav{top:68px}.p-section{padding:50px 0}.p-section h2{font-size:36px}.verify-box{flex-direction:column}.member-card{flex-direction:column;align-items:flex-start}.auth-card{padding:26px;box-shadow:8px 8px 0 #e8b92e}.idcard .qr img,.idcard .qr canvas{width:52px!important;height:52px!important}.idcard .photo{width:64px;height:80px}.idcard .nm{font-size:19px}}
+/* Application form */
+.apply-steps{grid-template-columns:repeat(4,1fr)!important;max-width:900px}
+.appform{padding:32px}
+.appform fieldset{border:0;border-top:3px solid #0b1d3a;margin:0 0 30px;padding:18px 0 0}
+.appform legend{font-family:"Barlow Condensed";font-size:24px;font-weight:700;color:#0b1d3a;text-transform:uppercase;letter-spacing:.5px;padding:0 10px 0 0}
+.appform .g{gap:14px}
+.appform .sub{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:#2756a3;margin:6px 0 10px}
+.grid-edu{display:grid;grid-template-columns:3fr 1fr}
+.photo-pick{display:flex;gap:18px;align-items:center;margin-bottom:18px}
+.photo-pick input[type=file]{padding:8px;font-size:14px}
+.photo-box{width:110px;height:110px;flex:0 0 auto;border:2px dashed #cbd4e0;border-radius:4px;display:grid;place-items:center;text-align:center;font-family:"Barlow Condensed";font-size:18px;color:#9aa4b2;overflow:hidden;background:#f5f7fa}
+.photo-box img{width:100%;height:100%;object-fit:cover}
+.child-row{display:grid;grid-template-columns:1fr 180px auto;gap:10px;margin-bottom:10px}
+input.invalid,select.invalid{border-color:#a3273a;background:#fff6f6}
+.app-photo{width:72px;height:72px;object-fit:cover;border-radius:4px;flex:0 0 auto;background:#eef2f7}
+.app-head{display:flex;gap:16px;align-items:flex-start}
+.role-badge{margin-left:10px;vertical-align:middle}
+@media(max-width:900px){.apply-steps{grid-template-columns:1fr 1fr!important}}
+@media(max-width:560px){.appform{padding:20px}.grid-edu{grid-template-columns:1fr}.child-row{grid-template-columns:1fr auto}.child-row input[type=date]{grid-column:1}.child-row button{grid-row:1/3;grid-column:2;align-self:center}.photo-pick{align-items:flex-start}}
