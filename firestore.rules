@@ -25,13 +25,15 @@ service cloud.firestore {
       allow write: if isFounder();
     }
 
-    // Private member profiles. Member sees and edits own contact details; only the Founder grants or changes membership.
+    // Private member profiles. Member sees and edits own contact details and can submit a photo for approval; only Founder/Admin grants or changes membership.
     match /profiles/{uid} {
       allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
       allow create, delete: if isFounder();
       allow update: if isFounder()
         || (signedIn() && request.auth.uid == uid
-            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['phone', 'address', 'emergencyContact'])
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['phone', 'address', 'emergencyContact', 'pendingPhoto', 'pendingPhotoAt'])
+            && (!('pendingPhoto' in request.resource.data) || (str(request.resource.data.pendingPhoto, 200000)
+                && (request.resource.data.pendingPhoto.size() == 0 || request.resource.data.pendingPhoto.matches('data:image/jpeg;base64,[A-Za-z0-9+/=]+'))))
             && str(request.resource.data.phone, 30)
             && str(request.resource.data.address, 200)
             && str(request.resource.data.emergencyContact, 200));

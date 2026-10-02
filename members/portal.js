@@ -37,6 +37,7 @@ export const normId = s => String(s || "").trim().toUpperCase().replace(/\s+/g, 
 // Only allow http(s) or site-relative links (blocks javascript: URLs).
 export function safeUrl(u) {
   u = String(u || "").trim();
+  if (/^data:image\/(jpeg|png);base64,[A-Za-z0-9+/=]+$/.test(u)) return u;
   if (/^https?:\/\//i.test(u) || /^(\.\.?\/|\/|#)/.test(u) || /^[\w\-./]+$/.test(u)) return u;
   return "#";
 }

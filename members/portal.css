@@ -79,21 +79,26 @@ button.btn{border:0;cursor:pointer;font-family:inherit}
 .tabs button.on{color:#0b1d3a;border-bottom-color:#e8b92e}
 .tabpane{display:none}.tabpane.on{display:block}
 .linkbtn{background:none;border:0;padding:0;color:#2756a3;font:inherit;font-size:13px;font-weight:600;cursor:pointer;text-decoration:underline}
-/* ID card */
-.idcard{width:100%;max-width:420px;aspect-ratio:1.586;border-radius:12px;overflow:hidden;background:linear-gradient(135deg,#0b1d3a 0%,#132d57 60%,#0b1d3a 100%);color:#fff;position:relative;box-shadow:0 12px 28px rgba(7,21,45,.35);display:grid;grid-template-rows:auto 1fr auto}
-.idcard .top{display:flex;align-items:center;gap:10px;padding:12px 16px;background:rgba(0,0,0,.25);border-bottom:2px solid #e8b92e}
-.idcard .top img{width:30px;height:34px;object-fit:contain}
-.idcard .top b{font-family:"Barlow Condensed";font-size:15px;letter-spacing:1px;line-height:1}
-.idcard .top small{display:block;font-size:8px;letter-spacing:1.6px;color:#e8b92e}
-.idcard .mid{display:flex;gap:14px;padding:12px 16px;align-items:center}
-.idcard .photo{width:78px;height:96px;border-radius:5px;object-fit:cover;background:#1d3a66;border:2px solid #e8b92e;flex:0 0 auto;display:grid;place-items:center;font-family:"Barlow Condensed";font-size:28px;color:#e8b92e}
-.idcard .nm{font-family:"Barlow Condensed";font-size:22px;line-height:1;margin-bottom:4px}
-.idcard .pos{font-size:10px;color:#e8b92e;text-transform:uppercase;letter-spacing:1px;font-weight:700}
-.idcard .meta{font-size:10px;color:#cbd4e0;margin-top:8px;line-height:1.5}
-.idcard .meta b{color:#fff}
-.idcard .qr{margin-left:auto;background:#fff;padding:4px;border-radius:4px;flex:0 0 auto}
-.idcard .qr img,.idcard .qr canvas{display:block;width:64px!important;height:64px!important}
-.idcard .bot{display:flex;justify-content:space-between;align-items:center;padding:8px 16px;background:#e8b92e;color:#07152d;font-size:11px;font-weight:800;letter-spacing:1px}
+/* ID card — styled after the printed ACTA member ID */
+.idcard{width:100%;max-width:440px;aspect-ratio:1.586;border-radius:12px;overflow:hidden;position:relative;color:#fff;box-shadow:0 12px 28px rgba(7,21,45,.35);background:linear-gradient(115deg,#f2a21b 0%,#e8401c 22%,#c8102e 45%,#8a1f6e 70%,#3b1c9c 100%);display:grid;grid-template-rows:auto 1fr auto;font-family:"Times New Roman",Times,serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.idc-head{position:relative;z-index:1;display:grid;grid-template-columns:22% 1fr 22%;align-items:center;padding:4% 4% 0}
+.idc-flag{display:block;width:100%;height:auto;transform:skewY(-4deg);filter:drop-shadow(0 2px 3px rgba(0,0,0,.35))}
+.idc-title{text-align:center;line-height:1;text-shadow:0 1px 2px rgba(0,0,0,.45)}
+.idc-title b{display:block;font-size:clamp(18px,6vw,27px);letter-spacing:.5px}
+.idc-title span{display:block;font-weight:700;font-size:clamp(9px,3vw,13px);margin-top:2px}
+.idc-mark{position:absolute;left:50%;top:52%;width:44%;transform:translate(-50%,-50%);opacity:.13;pointer-events:none}
+.idc-body{position:relative;z-index:1;display:flex;gap:4%;align-items:center;padding:2% 4%}
+.idc-photo{width:22%;aspect-ratio:1/1.08;border-radius:6px;object-fit:cover;background:#fff;flex:0 0 auto;display:grid;place-items:center;color:#c8102e;font-size:clamp(16px,5vw,26px);font-weight:700}
+.idc-info{flex:1;min-width:0;font-family:Arial,Helvetica,sans-serif;font-size:clamp(7px,2.1vw,9.5px);line-height:1.35;letter-spacing:.2px;text-shadow:0 1px 1px rgba(0,0,0,.4)}
+.idc-name{font-family:"Times New Roman",serif;font-weight:700;font-size:clamp(11px,3.6vw,16px);line-height:1.05}
+.idc-pos{font-weight:700;margin-bottom:1px}
+.idc-gap{margin-top:4px}
+.idc-st{color:#ffe36e}
+.idcard .qr{margin-left:auto;background:#fff;padding:3px;border-radius:4px;flex:0 0 auto}
+.idcard .qr img,.idcard .qr canvas{display:block;width:58px!important;height:58px!important}
+.idc-sign{position:relative;z-index:1;text-align:center;padding:0 0 3%;font-family:Arial,sans-serif;font-size:clamp(6px,1.9vw,8.5px);font-weight:700;line-height:1.3;text-shadow:0 1px 1px rgba(0,0,0,.4)}
+.idc-sign span{display:inline-block;border-top:1px solid rgba(255,255,255,.75);padding:2px 10px 0;margin-top:2px}
+.idc-sign small{display:block;font-size:inherit}
 /* Admin tables */
 .tbl{width:100%;border-collapse:collapse;font-size:14px;background:#fff}
 .tbl th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:#7b8799;padding:10px 12px;border-bottom:2px solid #e2e6ed;white-space:nowrap}
@@ -110,7 +115,7 @@ dialog h3{font-family:"Barlow Condensed";font-size:28px;margin:0 0 16px;color:#0
 .toast.bad{background:#a3273a}
 .hidden{display:none!important}
 @media(max-width:900px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr 1fr}.subnav{top:76px}}
-@media(max-width:560px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}.subnav{top:68px}.p-section{padding:50px 0}.p-section h2{font-size:36px}.verify-box{flex-direction:column}.member-card{flex-direction:column;align-items:flex-start}.auth-card{padding:26px;box-shadow:8px 8px 0 #e8b92e}.idcard .qr img,.idcard .qr canvas{width:52px!important;height:52px!important}.idcard .photo{width:64px;height:80px}.idcard .nm{font-size:19px}}
+@media(max-width:560px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}.subnav{top:68px}.p-section{padding:50px 0}.p-section h2{font-size:36px}.verify-box{flex-direction:column}.member-card{flex-direction:column;align-items:flex-start}.auth-card{padding:26px;box-shadow:8px 8px 0 #e8b92e}.idcard .qr img,.idcard .qr canvas{width:46px!important;height:46px!important}}
 /* Application form */
 .apply-steps{grid-template-columns:repeat(4,1fr)!important;max-width:900px}
 .appform{padding:32px}

@@ -37,6 +37,7 @@
       <div class="tabs" role="tablist">
         <button class="on" data-tab="requests">Account requests <span class="badge" id="n-requests">0</span></button>
         <button data-tab="members">Member registry <span class="badge" id="n-members">0</span></button>
+        <button data-tab="photos">Photo requests <span class="badge" id="n-photos">0</span></button>
         <button data-tab="applications">Applications <span class="badge" id="n-applications">0</span></button>
         <button data-tab="announcements">Announcements</button>
         <button data-tab="resources">Resources</button>
@@ -54,6 +55,11 @@
         </div>
         <input id="member-search" placeholder="Search by name, ID or chapter…" style="margin-bottom:14px;max-width:420px">
         <div class="tbl-wrap"><table class="tbl"><thead><tr><th>ID No.</th><th>Name</th><th>Chapter</th><th>Position</th><th>Status</th><th>Valid until</th><th>Portal</th><th></th></tr></thead><tbody id="members-body"></tbody></table></div>
+      </section>
+
+      <section class="tabpane" id="photos">
+        <p style="color:#4e5d73;max-width:760px">Members can upload their own ID photo from <b>My Account</b>. It only appears on their digital ID and the public Verify page after a Founder/Admin approves it here.</p>
+        <div id="photos-list"></div>
       </section>
 
       <section class="tabpane" id="applications">
@@ -110,7 +116,17 @@
       <div class="field"><label for="m-since">Member since</label><input id="m-since" type="date"></div>
       <div class="field"><label for="m-valid">ID valid until</label><input id="m-valid" type="date"></div>
     </div>
-    <div class="field"><label for="m-photo">Photo link</label><input id="m-photo" maxlength="500" placeholder="../assets/members/CV-R7-0029.jpg"><small>Optional. A photo saved in the website's assets/members folder, or an image link.</small></div>
+    <div class="field"><label>ID photo</label>
+      <div class="photo-pick" style="margin:0">
+        <div class="photo-box" id="m-photo-preview"><span>NO<br>PHOTO</span></div>
+        <div style="flex:1;min-width:0">
+          <input type="file" id="m-photo-file" accept="image/*">
+          <div class="row" style="margin-top:8px"><button type="button" class="btn line small" id="m-photo-remove">Remove photo</button></div>
+          <small>Upload a clear face photo; it is cropped to a square. Shown on the digital ID and the public Verify page.</small>
+        </div>
+      </div>
+      <details style="margin-top:10px"><summary class="muted" style="cursor:pointer">Or use a photo link</summary><input id="m-photo" maxlength="500" placeholder="../assets/members/CV-R7-0029.jpg" style="margin-top:8px"></details>
+    </div>
     <div class="row" style="justify-content:flex-end;margin-top:8px">
       <button class="btn line" value="cancel" formnovalidate>Cancel</button>
       <button class="btn primary" id="md-save" value="save">Save</button>
@@ -123,7 +139,7 @@
 <script type="module">
 import { configured, auth, db, fb, $, $$, esc, fmtDate, normId, safeUrl, setupBanner, initHeader, getRole, signOut, toast, friendlyError, STATUS_CLASS } from "./portal.js?v=4";
 import { chapters } from "./data.js?v=4";
-import { fullName, address, APP_STATUS } from "./appform.js?v=4";
+import { fullName, address, APP_STATUS, shrinkPhoto } from "./appform.js?v=4";
 
 initHeader();
 setupBanner($("#setup"));
@@ -164,14 +180,14 @@ async function loadMembers() {
   registry = r.docs.map(d => ({ idNo: d.id, ...d.data() })).sort((a, b) => a.idNo.localeCompare(b.idNo, undefined, { numeric: true }));
   profiles = p.docs.map(d => ({ uid: d.id, ...d.data() }));
   $("#n-members").textContent = registry.length;
-  renderMembers();
+  renderMembers(); renderPhotos();
 }
 function renderMembers() {
   const q = $("#member-search").value.trim().toLowerCase();
   const rows = registry.filter(m => !q || [m.idNo, m.name, m.chapter, m.position].join(" ").toLowerCase().includes(q));
   $("#members-body").innerHTML = rows.length ? rows.map(m => {
     const acct = profiles.find(p => p.idNo === m.idNo);
-    return `<tr><td><b>${esc(m.idNo)}</b></td><td>${esc(m.name)}</td><td>${esc(m.chapter)}</td><td>${esc(m.position || "Member")}</td>
+    return `<tr><td><b>${esc(m.idNo)}</b></td><td><span class="row" style="flex-wrap:nowrap;gap:10px">${m.photoUrl ? `<img src="${esc(safeUrl(m.photoUrl))}" alt="" style="width:34px;height:34px;border-radius:50%;object-fit:cover">` : ""}${esc(m.name)}</span></td><td>${esc(m.chapter)}</td><td>${esc(m.position || "Member")}</td>
       <td><span class="badge ${STATUS_CLASS[m.status] || ""}">${esc(m.status || "Active")}</span></td><td>${m.validUntil ? fmtDate(m.validUntil) : "—"}</td>
       <td>${acct ? `<span class="badge ok" title="${esc(acct.email)}">Linked</span>` : `<span class="muted">—</span>`}</td>
       <td class="row" style="flex-wrap:nowrap">${founder() ? `<button class="btn line small" data-edit="${esc(m.idNo)}">Edit</button><button class="btn danger small" data-del="${esc(m.idNo)}">Remove</button>` : ""}</td></tr>`;
@@ -192,14 +208,26 @@ $("#members-body").addEventListener("click", e => {
 $("#add-member").addEventListener("click", () => openMember({ status: "Active" }, {}));
 
 // Shared add/edit/approve dialog
-let dialogCtx = null;
+let dialogCtx = null, dialogPhoto = "";
+function setDialogPhoto(v) {
+  dialogPhoto = v || "";
+  $("#m-photo").value = dialogPhoto.startsWith("data:") ? "" : dialogPhoto;
+  $("#m-photo-file").value = "";
+  $("#m-photo-preview").innerHTML = dialogPhoto ? `<img src="${esc(safeUrl(dialogPhoto))}" alt="">` : `<span>NO<br>PHOTO</span>`;
+}
+$("#m-photo-file").addEventListener("change", async e => {
+  const f = e.target.files[0]; if (!f) return;
+  try { setDialogPhoto(await shrinkPhoto(f, 320)); } catch (err) { toast(err.message, "bad"); e.target.value = ""; }
+});
+$("#m-photo-remove").addEventListener("click", () => setDialogPhoto(""));
+$("#m-photo").addEventListener("change", e => setDialogPhoto(e.target.value.trim()));
 function openMember(m, ctx) {
   dialogCtx = ctx;
   $("#md-title").textContent = ctx.signup ? "Approve member access" : ctx.editing ? `Edit ${m.idNo}` : "Add member";
   $("#md-note").innerHTML = ctx.fromApp ? `<div class="notice">Approved applicant <b>${esc(fullName(ctx.fromApp))}</b>. Enter the ACTA ID number to assign, then save. They can then verify their ID and create a portal account.</div>` : ctx.signup ? `<div class="notice">Approving <b>${esc(ctx.signup.email)}</b>. ${ctx.existing ? "This ID is already in the registry — its record is shown below." : "This ID is not in the registry yet — it will be added."} Check the details, then save.</div>` : "";
   $("#m-id").value = m.idNo || ""; $("#m-id").readOnly = !!ctx.editing || !!ctx.signup;
   $("#m-name").value = m.name || ""; $("#m-chapter").value = m.chapter || chapters[0].name; $("#m-position").value = m.position || "";
-  $("#m-status").value = m.status || "Active"; $("#m-since").value = m.memberSince || ""; $("#m-valid").value = m.validUntil || ""; $("#m-photo").value = m.photoUrl || "";
+  $("#m-status").value = m.status || "Active"; $("#m-since").value = m.memberSince || ""; $("#m-valid").value = m.validUntil || ""; setDialogPhoto(m.photoUrl || "");
   $("#md-save").textContent = ctx.signup ? "Approve" : "Save";
   $("#member-dialog").showModal();
 }
@@ -209,7 +237,7 @@ $("#member-form").addEventListener("submit", e => {
   const idNo = normId($("#m-id").value), name = $("#m-name").value.trim();
   if (!/^[A-Z0-9\-]{3,30}$/.test(idNo) || !name) return toast("Enter a valid ID number (letters, numbers, dashes) and a name.", "bad");
   const rec = { name, chapter: $("#m-chapter").value, position: $("#m-position").value.trim(), status: $("#m-status").value,
-    memberSince: $("#m-since").value, validUntil: $("#m-valid").value, photoUrl: $("#m-photo").value.trim() };
+    memberSince: $("#m-since").value, validUntil: $("#m-valid").value, photoUrl: dialogPhoto };
   const ctx = dialogCtx;
   if (!ctx.editing && !ctx.signup && registry.some(m => m.idNo === idNo)) return toast(`${idNo} is already in the registry — use Edit instead.`, "bad");
   act(async () => {
@@ -224,6 +252,30 @@ $("#member-form").addEventListener("submit", e => {
     $("#member-dialog").close();
     await loadMembers(); if (ctx.signup) await loadRequests(); if (ctx.fromApp) renderApplications();
   }, ctx.signup ? `${name} approved.` : `${idNo} saved.`);
+});
+
+/* ---------- Photo requests ---------- */
+function renderPhotos() {
+  const list = profiles.filter(p => p.pendingPhoto);
+  $("#n-photos").textContent = list.length;
+  $("#photos-list").innerHTML = list.length ? list.map(p => `<div class="card" style="margin-bottom:14px"><div class="app-head">
+      <div style="text-align:center"><img class="app-photo" style="width:120px;height:120px" src="${esc(safeUrl(p.pendingPhoto))}" alt=""><div class="muted" style="margin-top:4px">New</div></div>
+      <div style="text-align:center">${p.photoUrl ? `<img class="app-photo" style="width:120px;height:120px;opacity:.7" src="${esc(safeUrl(p.photoUrl))}" alt=""><div class="muted" style="margin-top:4px">Current</div>` : ""}</div>
+      <div style="flex:1;min-width:0"><h3 style="margin:0">${esc(p.name)}</h3><div class="kv" style="margin:6px 0 12px">ID ${esc(p.idNo)} · ${esc(p.chapter || "")}<br><span class="muted">Submitted ${fmtDate(p.pendingPhotoAt)}</span></div>
+      <div class="row">${founder() ? `<button class="btn primary small" data-photo-ok="${esc(p.uid)}">Approve photo</button><button class="btn danger small" data-photo-no="${esc(p.uid)}">Reject</button>` : `<span class="muted">Waiting for Founder/Admin</span>`}</div></div>
+    </div></div>`).join("") : `<div class="empty">No photo requests.</div>`;
+}
+$("#photos-list").addEventListener("click", e => {
+  const ok = e.target.closest("[data-photo-ok]"), no = e.target.closest("[data-photo-no]");
+  const p = profiles.find(x => x.uid === (ok || no)?.dataset[ok ? "photoOk" : "photoNo"]);
+  if (!p) return;
+  if (ok) act(async () => {
+    const b = fb.writeBatch(db);
+    if (registry.some(m => m.idNo === p.idNo)) b.update(D("registry", p.idNo), { photoUrl: p.pendingPhoto });
+    b.update(D("profiles", p.uid), { photoUrl: p.pendingPhoto, pendingPhoto: "" });
+    await b.commit(); await loadMembers();
+  }, `Photo approved for ${p.name}.`);
+  if (no && confirm(`Reject the new photo from ${p.name}?`)) act(async () => { await fb.updateDoc(D("profiles", p.uid), { pendingPhoto: "" }); await loadMembers(); }, "Photo rejected.");
 });
 
 /* ---------- Account requests ---------- */
@@ -296,7 +348,7 @@ $("#applications-list").addEventListener("click", e => {
   }
   if (r) {
     const a = apps.find(x => x.id === r.dataset.toreg);
-    openMember({ name: fullName({ ...a, nickname: "" }), chapter: chapters.some(c => c.name === a.chapter) ? a.chapter : chapters[0].name, status: "Active", memberSince: new Date().toISOString().slice(0, 10), photoUrl: "" }, { fromApp: a });
+    openMember({ name: fullName({ ...a, nickname: "" }), chapter: chapters.some(c => c.name === a.chapter) ? a.chapter : chapters[0].name, status: "Active", memberSince: new Date().toISOString().slice(0, 10), photoUrl: a.photo || "" }, { fromApp: a });
   }
   if (d && confirm("Delete this application permanently?")) act(async () => { await fb.deleteDoc(D("applications", d.dataset.appdel)); await loadApplications(); }, "Application deleted.");
 });

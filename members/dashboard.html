@@ -51,6 +51,13 @@
             <a class="btn line small" id="verify-link" href="#" target="_blank" rel="noopener">Open public verification</a>
           </div>
           <p class="muted no-print" style="margin-top:12px">Anyone can scan the QR code to confirm your membership status on the ACTA website.</p>
+          <div class="card no-print" style="margin-top:18px;max-width:420px">
+            <h3 style="font-size:22px">ID photo</h3>
+            <div id="photo-status" style="margin-bottom:10px"></div>
+            <label for="own-photo" style="margin-bottom:8px">Upload a new photo</label>
+            <input type="file" id="own-photo" accept="image/*">
+            <small class="muted" style="display:block;margin-top:6px">A clear, recent photo of your face, like a 2×2 ID photo. An ACTA admin checks it before it appears on your ID.</small>
+          </div>
         </div>
         <form class="card" id="details">
           <h3>My details</h3>
@@ -85,6 +92,7 @@
 <script type="module">
 import { configured, auth, db, fb, $, esc, fmtDate, safeUrl, setupBanner, initHeader, getRole, signOut, toast, friendlyError, STATUS_CLASS } from "./portal.js?v=4";
 import { publicResources } from "./data.js?v=4";
+import { shrinkPhoto } from "./appform.js?v=4";
 
 initHeader();
 setupBanner($("#setup"));
@@ -114,18 +122,23 @@ function renderMember(p, user) {
   const verifyUrl = new URL(`./?id=${encodeURIComponent(p.idNo)}`, location.href).href;
   $("#verify-link").href = verifyUrl;
   const st = p.status || "Active";
+  const exp = p.validUntil ? (() => { const d = new Date(p.validUntil); return isNaN(d) ? esc(p.validUntil) : `${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()}`; })() : "—";
   $("#idcard").innerHTML = `
-    <div class="top"><img src="../assets/acta-logo.png" alt=""><div><b>ANTI-CRIME &amp; TRAFFIC ASSISTANCE</b><small>FORCE MULTIPLIER • MEMBER ID</small></div></div>
-    <div class="mid">
-      ${p.photoUrl ? `<img class="photo" src="${esc(safeUrl(p.photoUrl))}" alt="">` : `<div class="photo">${initials}</div>`}
-      <div style="min-width:0">
-        <div class="nm">${esc(p.name)}</div>
-        <div class="pos">${esc(p.position || "Member")}</div>
-        <div class="meta">Chapter: <b>${esc(p.chapter || "—")}</b><br>${p.validUntil ? `Valid until: <b>${fmtDate(p.validUntil)}</b>` : `Status: <b>${esc(st)}</b>`}</div>
+    <div class="idc-head"><svg class="idc-flag" viewBox="0 0 180 100" aria-hidden="true"><rect width="180" height="50" fill="#0038a8"/><rect y="50" width="180" height="50" fill="#ce1126"/><path d="M0 0L86.6 50L0 100Z" fill="#fff"/><circle cx="29" cy="50" r="9" fill="#fcd116"/><g fill="#fcd116"><circle cx="9" cy="14" r="3.2"/><circle cx="9" cy="86" r="3.2"/><circle cx="70" cy="50" r="3.2"/></g></svg><div class="idc-title"><b>ACTA</b><span>ANTI CRIME &amp;<br>TRAFFIC ASSISTANCE</span></div></div>
+    <img class="idc-mark" src="../assets/acta-logo.png" alt="">
+    <div class="idc-body">
+      ${p.photoUrl ? `<img class="idc-photo" src="${esc(safeUrl(p.photoUrl))}" alt="">` : `<div class="idc-photo">${initials}</div>`}
+      <div class="idc-info">
+        <div class="idc-name">${esc((p.name || "").toUpperCase())}</div>
+        <div class="idc-pos">${esc((p.position || "Member").toUpperCase())}</div>
+        <div>ID No.: <b>${esc(p.idNo)}</b></div>
+        <div class="idc-gap">CHAPTER : <b>${esc((p.chapter || "—").toUpperCase())}</b></div>
+        <div>REGION : <b>CENTRAL VISAYAS REGION VII</b></div>
+        <div>Exp.Date : <b>${exp}</b>${st !== "Active" ? ` · <b class="idc-st">${esc(st.toUpperCase())}</b>` : ""}</div>
       </div>
       <div class="qr" id="qr"></div>
     </div>
-    <div class="bot"><span>${esc(p.idNo)}</span><span>${esc(st.toUpperCase())}</span></div>`;
+    <div class="idc-sign"><span>Atty PCol. Antonietto Y. Cañete</span><small>CORPORATE ADVISER</small></div>`;
   if (window.QRCode) new QRCode($("#qr"), { text: verifyUrl, width: 128, height: 128, correctLevel: QRCode.CorrectLevel.M });
 
   $("#fixed").innerHTML = `<b>${esc(p.name)}</b><br>ID ${esc(p.idNo)} · ${esc(p.chapter || "")}${p.position ? " · " + esc(p.position) : ""}<br>${esc(user.email)}<br><span class="badge ${STATUS_CLASS[st] || ""}" style="margin-top:8px">${esc(st)}</span>${p.memberSince ? ` <span class="muted">Member since ${fmtDate(p.memberSince)}</span>` : ""}`;
@@ -138,6 +151,19 @@ function renderMember(p, user) {
       toast("Your details were saved.");
     } catch (err) { toast(friendlyError(err), "bad"); }
     btn.disabled = false;
+  };
+  const ps = () => $("#photo-status").innerHTML = p.pendingPhoto
+    ? `<div class="notice warn" style="margin:0;display:flex;gap:12px;align-items:center"><img src="${esc(safeUrl(p.pendingPhoto))}" alt="" style="width:56px;height:56px;object-fit:cover;border-radius:4px">Your new photo is waiting for admin approval.</div>`
+    : p.photoUrl ? `<span class="muted">Your current photo is shown on your ID.</span>` : `<span class="muted">No photo yet — your ID shows your initials.</span>`;
+  ps();
+  $("#own-photo").onchange = async e => {
+    const file = e.target.files[0]; if (!file) return;
+    try {
+      const img = await shrinkPhoto(file, 320);
+      await fb.updateDoc(fb.doc(db, "profiles", user.uid), { pendingPhoto: img, pendingPhotoAt: fb.serverTimestamp() });
+      p.pendingPhoto = img; ps(); toast("Photo sent for approval.");
+    } catch (err) { toast(err.message && !err.code ? err.message : friendlyError(err), "bad"); }
+    e.target.value = "";
   };
   $("#member").classList.remove("hidden");
   loadUpdates();

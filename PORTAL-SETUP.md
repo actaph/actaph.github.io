@@ -29,6 +29,8 @@ Admins are listed in the Firestore collection `admins`. Each document's ID is th
 
 Everyone else is either an approved **member** (has a digital ID) or an account **awaiting approval**.
 
+The digital ID on **My Account** follows the printed ACTA ID card (flag, ACTA heading, photo, name, position, ID No., chapter, Central Visayas Region VII, Exp.Date as MM/YYYY, Corporate Adviser line) and adds a QR code that opens the member's *Verify ID* page. **Print / save ID** saves it as a PDF.
+
 ### Adding an admin or coordinator
 
 1. The person creates an account at `actaph.github.io/members/login.html` → **Create account**.
@@ -66,6 +68,7 @@ To remove someone's admin access, delete their document in `admins`. To change t
 
 ## Everyday admin tasks
 
+- **ID numbers:** enter them in one format, e.g. `CV-R7-046` (the printed cards vary: "CV - R7 046", "CV -R 7 080"). Verify ID only finds an exact match.
 - **Member registry:** every ID listed here can be checked on *Verify ID*. Members don't need a portal account to be listed. Use **+ Add member** for current members. To suspend or expel someone, **Edit** and change **Status** (verification will show it) instead of removing them.
 - **ID valid until:** the date boxes are month first (`MM/DD/YYYY`). `01/03/2028` means January 3, 2028.
 - **Announcements:** choose *Everyone (public)* to show on the portal home, or *Members only* for signed-in members. Web addresses in posts show as plain text (not clickable links).
@@ -73,13 +76,11 @@ To remove someone's admin access, delete their document in `admins`. To change t
 
 ### Member photos
 
-For now, ID photos are added by link:
+Photos are uploaded directly in the portal, shrunk to a small square and saved in the database (no paid storage needed). They appear on the digital ID and the public *Verify ID* page, so only use photos the member agreed to. Without a photo, the ID shows the member's initials.
 
-1. Save the photo in the website folder as `assets/members/ID-NUMBER.jpg` (e.g. `assets/members/CV-R7-0029.jpg`).
-2. Commit and push in GitHub Desktop.
-3. In **Member registry → Edit**, set **Photo link** to `../assets/members/CV-R7-0029.jpg` and **Save**.
-
-Without a photo, the ID card shows the member's initials. Photos are public on the Verify page, so only use photos the member agreed to. (Applicants' 2×2 photos are uploaded directly in the application form.)
+- **Admin upload:** **Member registry → Edit** (or the approval form) → **ID photo → Choose file** → **Save**. **Remove photo** clears it. A photo link can still be used under "Or use a photo link".
+- **Approved applicants:** **Add to member registry** automatically uses the applicant's 2×2 photo from their application.
+- **Members' own photos:** a member uploads a photo under **My Account → ID photo**. It does **not** go live until a Founder/Admin approves it in **Admin → Photo requests** (**Approve photo** or **Reject**). Coordinators can see requests but not approve them.
 
 ### Chapters and public resources
 
@@ -130,8 +131,8 @@ Kept for reference if the project ever has to be recreated.
 | Collection | Contents | Who can read |
 |---|---|---|
 | `admins` | Admin roles (by User UID) | Each admin reads only their own |
-| `registry` | Member records by ID number: name, chapter, position, status, dates, photo link | Anyone can look up one ID; members/admins can list all |
-| `profiles` | Approved members' accounts, including private contact details | The member themself and admins |
+| `registry` | Member records by ID number: name, chapter, position, status, dates, photo | Anyone can look up one ID; members/admins can list all |
+| `profiles` | Approved members' accounts, including private contact details and any photo waiting for approval | The member themself and admins |
 | `signups` | Account requests awaiting approval | The requester and admins |
 | `applications` | Online membership applications | Admins only |
 | `announcements`, `resources` | Posts and links, marked public or members-only | Public ones: everyone. Members-only: signed-in members and admins |
