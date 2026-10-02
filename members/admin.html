@@ -146,7 +146,7 @@ else fb.onAuthStateChanged(auth, async user => {
   if (!r.admin) { $("#gate").className = "notice bad"; $("#gate").innerHTML = "This page is for ACTA portal admins only. <a href='dashboard.html'>Go to my account</a>"; return; }
   me = user; role = r.adminRole; $("#gate").classList.add("hidden"); $("#app").classList.remove("hidden");
   $("#role-line").innerHTML = founder()
-    ? `Signed in as <b>${esc(user.email)}</b> <span class="badge gold role-badge">Founder</span> — you can give final approval and manage member records.`
+    ? `Signed in as <b>${esc(user.email)}</b> <span class="badge gold role-badge">${esc(r.adminLabel)}</span> — you have full access: final approval and member records.`
     : `Signed in as <b>${esc(user.email)}</b> <span class="badge role-badge">Coordinator</span> — you can endorse applications and post updates. Final approval and member records are for the Founder.`;
   if (!founder()) $("#add-member").classList.add("hidden");
   refreshAll();

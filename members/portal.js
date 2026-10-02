@@ -65,7 +65,8 @@ export async function getRole(user) {
     user,
     profile: p?.exists() ? p.data() : null,
     admin: !!a?.exists(),
-    adminRole: a?.exists() ? (a.data().role === "founder" ? "founder" : "coordinator") : null,
+    adminRole: a?.exists() ? (["founder", "admin"].includes(a.data().role) ? "founder" : "coordinator") : null,
+    adminLabel: a?.exists() ? ({ founder: "Founder", admin: "Admin" }[a.data().role] || "Coordinator") : null,
     signup: s?.exists() ? s.data() : null
   };
 }

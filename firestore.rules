@@ -1,14 +1,14 @@
 rules_version = '2';
 // ACTA Members Portal — Firestore security rules.
 // Paste this into Firebase Console → Firestore Database → Rules, then click Publish.
-// Roles: admins/{uid}.role == "founder" (final approval) or "coordinator" (endorses, posts updates).
+// Roles: admins/{uid}.role == "founder" or "admin" (full access, final approval) or "coordinator" (endorses, posts updates).
 service cloud.firestore {
   match /databases/{database}/documents {
 
     function signedIn() { return request.auth != null; }
     function adminDoc() { return /databases/$(database)/documents/admins/$(request.auth.uid); }
     function isAdmin()   { return signedIn() && exists(adminDoc()); }
-    function isFounder() { return isAdmin() && get(adminDoc()).data.role == 'founder'; }
+    function isFounder() { return isAdmin() && get(adminDoc()).data.role in ['founder', 'admin']; }
     function isMember()  { return signedIn() && exists(/databases/$(database)/documents/profiles/$(request.auth.uid)); }
     function str(v, max) { return v is string && v.size() <= max; }
 

@@ -53,6 +53,8 @@ Two admin roles mirror the paper form:
 4. Document ID: paste the UID. Add a field named `role` (type string) with the value `founder`. Click **Save**.
 5. Sign in on the website and open **Admin** (top menu). Under **Account requests**, approve the Founder's own request so he also gets a digital ID.
 
+An **Admin** (value `admin`) has the same full access as the Founder — use it for the person who manages the portal.
+
 To add a Membership Coordinator, have them create an account, then repeat steps 2–4 with their UID and the value `coordinator`.
 
 ---
