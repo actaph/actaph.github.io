@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+Disallow: /members/login.html
+Sitemap: https://actaph.github.io/sitemap.xml
