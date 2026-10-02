@@ -204,8 +204,8 @@
 <footer><div class="container footer"><div class="brand"><img class="brand-logo footer-logo" src="../assets/acta-logo.png" alt="ACTA logo"><span>Anti-Crime &amp; Traffic Assistance</span></div><span>© <span id="year"></span> ACTA. All rights reserved.</span></div></footer>
 
 <script type="module">
-import { configured, db, fb, $, esc, fmtDate, normId, safeUrl, setupBanner, initHeader, STATUS_CLASS, toast, friendlyError } from "./portal.js";
-import { chapters, publicResources } from "./data.js";
+import { configured, db, fb, $, esc, fmtDate, normId, safeUrl, setupBanner, initHeader, STATUS_CLASS, toast, friendlyError } from "./portal.js?v=4";
+import { chapters, publicResources } from "./data.js?v=4";
 
 initHeader();
 setupBanner($("#setup"));
@@ -277,7 +277,7 @@ async function loadAnnouncements() {
 loadAnnouncements();
 
 // Application form (mirrors the official paper form)
-import("./appform.js").then(({ TEXT_FIELDS, CIVIL, MAX_CHILDREN, shrinkPhoto }) => {
+import("./appform.js?v=4").then(({ TEXT_FIELDS, CIVIL, MAX_CHILDREN, shrinkPhoto }) => {
   const f = $("#apply-form"), msg = $("#apply-msg"), btn = $("#apply-btn");
   $("#f-civilStatus").innerHTML = `<option value=""></option>` + CIVIL.map(c => `<option>${c}</option>`).join("");
   $("#f-chapter").innerHTML = `<option value=""></option>` + chapters.map(c => `<option>${esc(c.name)}</option>`).join("") + `<option>Not sure yet</option>`;

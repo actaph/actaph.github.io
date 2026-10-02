@@ -1,5 +1,5 @@
 // Shared helpers for the ACTA Members Portal.
-import { firebaseConfig } from "./firebase-config.js";
+import { firebaseConfig } from "./firebase-config.js?v=4";
 
 const V = "10.12.2";
 export const configured = !!firebaseConfig.apiKey && !firebaseConfig.apiKey.startsWith("PASTE");
@@ -53,6 +53,8 @@ export function toast(msg, type = "ok") {
   clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), 3800);
 }
 
+const roleOf = snap => String(snap.data()?.role || "").trim().toLowerCase();
+
 // Resolve the signed-in user's role: { user, profile, admin, signup }
 export async function getRole(user) {
   if (!user) return { user: null };
@@ -65,8 +67,8 @@ export async function getRole(user) {
     user,
     profile: p?.exists() ? p.data() : null,
     admin: !!a?.exists(),
-    adminRole: a?.exists() ? (["founder", "admin"].includes(a.data().role) ? "founder" : "coordinator") : null,
-    adminLabel: a?.exists() ? ({ founder: "Founder", admin: "Admin" }[a.data().role] || "Coordinator") : null,
+    adminRole: a?.exists() ? (["founder", "admin"].includes(roleOf(a)) ? "founder" : "coordinator") : null,
+    adminLabel: a?.exists() ? ({ founder: "Founder", admin: "Admin" }[roleOf(a)] || "Coordinator") : null,
     signup: s?.exists() ? s.data() : null
   };
 }
