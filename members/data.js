@@ -12,7 +12,7 @@ export const chapters = [
     ],
     contact: ""
   },
-  { name: "Liloan", tag: "Chapter", area: "Liloan, Cebu", officers: [], contact: "" },
+  { name: "Liloan", tag: "Chapter", area: "Liloan, Cebu", officers: [{ role: "Chapter Officer", name: "Chary Cañete" }, { role: "Chapter Officer", name: "Cedric Cañete" }, { role: "Chapter Officer", name: "Migz Gubahac" }, { role: "Chapter Officer", name: "Boo Oncada" }], contact: "" },
   { name: "Compostela", tag: "Chapter", area: "Compostela, Cebu", officers: [], contact: "" },
   { name: "Danao", tag: "Chapter", area: "Danao City, Cebu", officers: [], contact: "" },
   { name: "Cebu City", tag: "Chapter", area: "Cebu City, Cebu", officers: [], contact: "" }
