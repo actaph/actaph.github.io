@@ -204,8 +204,8 @@
 <footer><div class="container footer"><div class="brand"><img class="brand-logo footer-logo" src="../assets/acta-logo.png" alt="ACTA logo"><span>Anti-Crime &amp; Traffic Assistance</span></div><span>© <span id="year"></span> ACTA. All rights reserved.</span></div></footer>
 
 <script type="module">
-import { configured, db, fb, $, esc, fmtDate, normId, safeUrl, setupBanner, initHeader, STATUS_CLASS, toast, friendlyError } from "./portal.js?v=4";
-import { chapters, publicResources } from "./data.js?v=4";
+import { configured, db, fb, $, esc, fmtDate, normId, safeUrl, setupBanner, initHeader, STATUS_CLASS, toast, friendlyError } from "./portal.js?v=5";
+import { chapters, publicResources } from "./data.js?v=5";
 
 initHeader();
 setupBanner($("#setup"));
@@ -277,7 +277,7 @@ async function loadAnnouncements() {
 loadAnnouncements();
 
 // Application form (mirrors the official paper form)
-import("./appform.js?v=4").then(({ TEXT_FIELDS, CIVIL, MAX_CHILDREN, shrinkPhoto }) => {
+import("./appform.js?v=5").then(({ TEXT_FIELDS, CIVIL, MAX_CHILDREN, cropPhoto }) => {
   const f = $("#apply-form"), msg = $("#apply-msg"), btn = $("#apply-btn");
   $("#f-civilStatus").innerHTML = `<option value=""></option>` + CIVIL.map(c => `<option>${c}</option>`).join("");
   $("#f-chapter").innerHTML = `<option value=""></option>` + chapters.map(c => `<option>${esc(c.name)}</option>`).join("") + `<option>Not sure yet</option>`;
@@ -297,7 +297,7 @@ import("./appform.js?v=4").then(({ TEXT_FIELDS, CIVIL, MAX_CHILDREN, shrinkPhoto
   let photo = "";
   $("#a-photo").addEventListener("change", async e => {
     const file = e.target.files[0]; if (!file) return;
-    try { photo = await shrinkPhoto(file); $("#photo-preview").innerHTML = `<img src="${photo}" alt="Your photo">`; }
+    try { const c = await cropPhoto(file, { width: 360, height: 360, title: "Adjust your 2×2 photo", hint: "Zoom and drag so your head and shoulders fill the frame." }); e.target.value = ""; if (!c) return; photo = c; $("#photo-preview").innerHTML = `<img src="${photo}" alt="Your photo">`; }
     catch (err) { photo = ""; e.target.value = ""; toast(err.message, "bad"); }
   });
 

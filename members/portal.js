@@ -1,5 +1,5 @@
 // Shared helpers for the ACTA Members Portal.
-import { firebaseConfig } from "./firebase-config.js?v=4";
+import { firebaseConfig } from "./firebase-config.js?v=5";
 
 const V = "10.12.2";
 export const configured = !!firebaseConfig.apiKey && !firebaseConfig.apiKey.startsWith("PASTE");

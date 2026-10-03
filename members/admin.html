@@ -118,7 +118,7 @@
     </div>
     <div class="field"><label>ID photo</label>
       <div class="photo-pick" style="margin:0">
-        <div class="photo-box" id="m-photo-preview"><span>NO<br>PHOTO</span></div>
+        <div class="photo-box" id="m-photo-preview" style="width:96px;height:120px"><span>NO<br>PHOTO</span></div>
         <div style="flex:1;min-width:0">
           <input type="file" id="m-photo-file" accept="image/*">
           <div class="row" style="margin-top:8px"><button type="button" class="btn line small" id="m-photo-remove">Remove photo</button></div>
@@ -137,9 +137,9 @@
 <footer style="margin-top:80px"><div class="container footer"><div class="brand"><img class="brand-logo footer-logo" src="../assets/acta-logo.png" alt="ACTA logo"><span>Anti-Crime &amp; Traffic Assistance</span></div><span>© <span id="year"></span> ACTA. All rights reserved.</span></div></footer>
 
 <script type="module">
-import { configured, auth, db, fb, $, $$, esc, fmtDate, normId, safeUrl, setupBanner, initHeader, getRole, signOut, toast, friendlyError, STATUS_CLASS } from "./portal.js?v=4";
-import { chapters } from "./data.js?v=4";
-import { fullName, address, APP_STATUS, shrinkPhoto } from "./appform.js?v=4";
+import { configured, auth, db, fb, $, $$, esc, fmtDate, normId, safeUrl, setupBanner, initHeader, getRole, signOut, toast, friendlyError, STATUS_CLASS } from "./portal.js?v=5";
+import { chapters } from "./data.js?v=5";
+import { fullName, address, APP_STATUS, cropPhoto } from "./appform.js?v=5";
 
 initHeader();
 setupBanner($("#setup"));
@@ -217,7 +217,7 @@ function setDialogPhoto(v) {
 }
 $("#m-photo-file").addEventListener("change", async e => {
   const f = e.target.files[0]; if (!f) return;
-  try { setDialogPhoto(await shrinkPhoto(f, 320)); } catch (err) { toast(err.message, "bad"); e.target.value = ""; }
+  try { const img = await cropPhoto(f); if (img) setDialogPhoto(img); } catch (err) { toast(err.message, "bad"); } e.target.value = "";
 });
 $("#m-photo-remove").addEventListener("click", () => setDialogPhoto(""));
 $("#m-photo").addEventListener("change", e => setDialogPhoto(e.target.value.trim()));

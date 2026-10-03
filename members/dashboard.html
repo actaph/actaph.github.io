@@ -90,9 +90,9 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script type="module">
-import { configured, auth, db, fb, $, esc, fmtDate, safeUrl, setupBanner, initHeader, getRole, signOut, toast, friendlyError, STATUS_CLASS } from "./portal.js?v=4";
-import { publicResources } from "./data.js?v=4";
-import { shrinkPhoto } from "./appform.js?v=4";
+import { configured, auth, db, fb, $, esc, fmtDate, safeUrl, setupBanner, initHeader, getRole, signOut, toast, friendlyError, STATUS_CLASS } from "./portal.js?v=5";
+import { publicResources } from "./data.js?v=5";
+import { cropPhoto } from "./appform.js?v=5";
 
 initHeader();
 setupBanner($("#setup"));
@@ -159,7 +159,7 @@ function renderMember(p, user) {
   $("#own-photo").onchange = async e => {
     const file = e.target.files[0]; if (!file) return;
     try {
-      const img = await shrinkPhoto(file, 320);
+      const img = await cropPhoto(file); if (!img) { e.target.value = ""; return; }
       await fb.updateDoc(fb.doc(db, "profiles", user.uid), { pendingPhoto: img, pendingPhotoAt: fb.serverTimestamp() });
       p.pendingPhoto = img; ps(); toast("Photo sent for approval.");
     } catch (err) { toast(err.message && !err.code ? err.message : friendlyError(err), "bad"); }

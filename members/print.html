@@ -47,7 +47,7 @@ th{background:#e6e6e6;font-weight:400;text-align:left;font-size:7.5pt}
 <div class="wrap"><div class="sheet" id="sheet"></div></div>
 
 <script type="module">
-import { CIVIL, MAX_CHILDREN, age } from "./appform.js?v=4";
+import { CIVIL, MAX_CHILDREN, age } from "./appform.js?v=5";
 const $ = s => document.querySelector(s);
 const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const fmt = d => { if (!d) return ""; const x = d.toDate ? d.toDate() : new Date(d); return isNaN(x) ? esc(d) : x.toLocaleDateString("en-PH", { year: "numeric", month: "long", day: "numeric" }); };
@@ -125,7 +125,7 @@ else {
   render();
   $("#bar-text").textContent = "Loading application…"; $("#back").href = "admin.html";
   try {
-    const { configured, auth, db, fb } = await import("./portal.js?v=4");
+    const { configured, auth, db, fb } = await import("./portal.js?v=5");
     if (!configured) throw new Error("The portal isn't connected yet.");
     fb.onAuthStateChanged(auth, async user => {
       if (!user) { location.replace("login.html"); return; }

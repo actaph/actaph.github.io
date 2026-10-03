@@ -76,7 +76,7 @@ To remove someone's admin access, delete their document in `admins`. To change t
 
 ### Member photos
 
-Photos are uploaded directly in the portal, shrunk to a small square and saved in the database (no paid storage needed). They appear on the digital ID and the public *Verify ID* page, so only use photos the member agreed to. Without a photo, the ID shows the member's initials.
+Photos are uploaded directly in the portal. After choosing a file, a crop window opens: zoom and drag so the frame shows **head and shoulders (half-body)**, like the printed ID, then click **Use photo**. Transparent backgrounds become white. Photos are saved small in the database (no paid storage needed). They appear on the digital ID and the public *Verify ID* page, so only use photos the member agreed to. Without a photo, the ID shows the member's initials.
 
 - **Admin upload:** **Member registry → Edit** (or the approval form) → **ID photo → Choose file** → **Save**. **Remove photo** clears it. A photo link can still be used under "Or use a photo link".
 - **Approved applicants:** **Add to member registry** automatically uses the applicant's 2×2 photo from their application.
