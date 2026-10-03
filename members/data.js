@@ -14,7 +14,8 @@ export const chapters = [
   },
   { name: "Liloan", tag: "Chapter", area: "Liloan, Cebu", officers: [], contact: "" },
   { name: "Compostela", tag: "Chapter", area: "Compostela, Cebu", officers: [], contact: "" },
-  { name: "Danao", tag: "Chapter", area: "Danao City, Cebu", officers: [], contact: "" }
+  { name: "Danao", tag: "Chapter", area: "Danao City, Cebu", officers: [], contact: "" },
+  { name: "Cebu City", tag: "Chapter", area: "Cebu City, Cebu", officers: [], contact: "" }
 ];
 
 // Public resources (anyone can see). Members-only resources are added from the Admin page.

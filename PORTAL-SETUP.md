@@ -84,7 +84,7 @@ Photos are uploaded directly in the portal, shrunk to a small square and saved i
 
 ### Chapters and public resources
 
-Chapter names, officers and the public resource links are in `members/data.js`. Edit the text between the quotes, then commit and push. Current chapters: Lapu-Lapu City (Founding Chapter), Liloan, Compostela, Danao.
+Chapter names, officers and the public resource links are in `members/data.js`. Edit the text between the quotes, then commit and push. Current chapters: Lapu-Lapu City (Founding Chapter), Liloan, Compostela, Danao, Cebu City.
 
 ---
 
