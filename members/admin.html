@@ -104,7 +104,7 @@
     <h3 id="md-title">Member</h3>
     <div id="md-note"></div>
     <div class="grid-2" style="gap:14px">
-      <div class="field"><label for="m-id">ID number *</label><input id="m-id" required maxlength="30" style="text-transform:uppercase"></div>
+      <div class="field"><label for="m-id">ID number *</label><input id="m-id" required maxlength="30" style="text-transform:uppercase"><small id="m-id-note"></small></div>
       <div class="field"><label for="m-status">Status</label><select id="m-status"><option>Active</option><option>Inactive</option><option>Suspended</option><option>Expelled</option></select></div>
     </div>
     <div class="field"><label for="m-name">Full name *</label><input id="m-name" required maxlength="120"></div>
@@ -225,7 +225,8 @@ function openMember(m, ctx) {
   dialogCtx = ctx;
   $("#md-title").textContent = ctx.signup ? "Approve member access" : ctx.editing ? `Edit ${m.idNo}` : "Add member";
   $("#md-note").innerHTML = ctx.fromApp ? `<div class="notice">Approved applicant <b>${esc(fullName(ctx.fromApp))}</b>. Enter the ACTA ID number to assign, then save. They can then verify their ID and create a portal account.</div>` : ctx.signup ? `<div class="notice">Approving <b>${esc(ctx.signup.email)}</b>. ${ctx.existing ? "This ID is already in the registry — its record is shown below." : "This ID is not in the registry yet — it will be added."} Check the details, then save.</div>` : "";
-  $("#m-id").value = m.idNo || ""; $("#m-id").readOnly = !!ctx.editing || !!ctx.signup;
+  $("#m-id").value = m.idNo || ""; $("#m-id").readOnly = false; ctx.oldId = ctx.editing ? m.idNo : null;
+  $("#m-id-note").textContent = ctx.editing ? "To correct the ID number, edit it here. The member keeps their portal account and digital ID." : ctx.signup ? "Correct it here if the member typed it differently from their printed ID." : "";
   $("#m-name").value = m.name || ""; $("#m-chapter").value = m.chapter || chapters[0].name; $("#m-position").value = m.position || "";
   $("#m-status").value = m.status || "Active"; $("#m-since").value = m.memberSince || ""; $("#m-valid").value = m.validUntil || ""; setDialogPhoto(m.photoUrl || "");
   $("#md-save").textContent = ctx.signup ? "Approve" : "Save";
@@ -240,9 +241,16 @@ $("#member-form").addEventListener("submit", e => {
     memberSince: $("#m-since").value, validUntil: $("#m-valid").value, photoUrl: dialogPhoto };
   const ctx = dialogCtx;
   if (!ctx.editing && !ctx.signup && registry.some(m => m.idNo === idNo)) return toast(`${idNo} is already in the registry — use Edit instead.`, "bad");
+  const moving = ctx.editing && ctx.oldId && idNo !== ctx.oldId;
+  if (moving && registry.some(m => m.idNo === idNo)) return toast(`${idNo} already belongs to another member. Choose a different ID number.`, "bad");
+  if (moving && !confirm(`Change ID number from ${ctx.oldId} to ${idNo}? The old number will no longer verify.`)) return;
   act(async () => {
     const b = fb.writeBatch(db);
     b.set(D("registry", idNo), { ...rec, updatedAt: fb.serverTimestamp() });
+    if (moving) {
+      b.delete(D("registry", ctx.oldId));
+      profiles.filter(p => p.idNo === ctx.oldId).forEach(p => b.update(D("profiles", p.uid), { ...rec, idNo }));
+    }
     profiles.filter(p => p.idNo === idNo).forEach(p => b.update(D("profiles", p.uid), rec));
     if (ctx.signup) {
       b.set(D("profiles", ctx.uid), { ...rec, idNo, email: ctx.signup.email, phone: "", address: "", emergencyContact: "", approvedBy: me.email, approvedAt: fb.serverTimestamp() });
@@ -251,7 +259,7 @@ $("#member-form").addEventListener("submit", e => {
     await b.commit();
     $("#member-dialog").close();
     await loadMembers(); if (ctx.signup) await loadRequests(); if (ctx.fromApp) renderApplications();
-  }, ctx.signup ? `${name} approved.` : `${idNo} saved.`);
+  }, ctx.signup ? `${name} approved.` : moving ? `ID changed from ${ctx.oldId} to ${idNo}.` : `${idNo} saved.`);
 });
 
 /* ---------- Photo requests ---------- */
